@@ -1,25 +1,17 @@
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import TradingViewWidget from './Components/TradingViewWidget'
 
 function App() {
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <section className='flex flex-row'>
+      <div className='w-[50vw] h-[80vh]'>
+        <TradingViewWidget />
       </div>
-      <h1>Vite + React</h1>
-      <h1 className="text-3xl font-bold underline">
-        Hello world!
-      </h1>
-      <button className="btn">Button</button>
-    </>
+      <div className='w-[50vw] h-[80vh]'>
+        <button className='btn btn-primary'>Start</button>
+      </div>
+    </section>
   )
 }
 
