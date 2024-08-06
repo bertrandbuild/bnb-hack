@@ -1,27 +1,37 @@
 import React from "react";
-
+// import interfaces
+import { IStrategy } from "../utils/interfaces";
 // import components
 import StrategyCard from "../components/StrategyCard";
+// import global context
+import { useGlobalContext } from "../context/globalContext";
 
 const strategies = [
-    {
-        title: "Risk balancing",
-        description: "Conservative",
-        buttonLabel: "Choose",
-      },
-      {
-        title: "Ichimoku cloud",
-        description: "Swing trading",
-        buttonLabel: "Choose",
-      },
-      {
-        title: "MA Cross - Daily",
-        description: "Swing trading",
-        buttonLabel: "Choose",
-      },
-]
+  {
+    title: "Risk balancing",
+    description: "Conservative",
+    buttonLabel: "Choose",
+  },
+  {
+    title: "Ichimoku cloud",
+    description: "Swing trading",
+    buttonLabel: "Choose",
+  },
+  {
+    title: "MA Cross - Daily",
+    description: "Swing trading",
+    buttonLabel: "Choose",
+  },
+];
 
 const OnboardingStrategy: React.FC = () => {
+  const { updateContext } = useGlobalContext();
+
+  const handleChooseStrategy = (strategy: IStrategy) => {
+    updateContext("strategy", strategy );
+    console.log("My selection", strategy);
+  };
+
   return (
     <div className="flex flex-col">
       <div className="container mx-auto px-4 flex-grow">
@@ -35,6 +45,7 @@ const OnboardingStrategy: React.FC = () => {
               title={strategy.title}
               description={strategy.description}
               buttonLabel={strategy.buttonLabel}
+              onChoose={() => handleChooseStrategy(strategy)}
             />
           ))}
         </div>

@@ -1,10 +1,18 @@
 import React from "react";
 
+// import global context
+import { useGlobalContext } from "../context/globalContext";
+
 interface StrategyControlsProps {
   onOpenModal: () => void;
 }
 
 const StrategyControls: React.FC<StrategyControlsProps> = ({ onOpenModal }) => {
+  const { strategy } = useGlobalContext();
+  console.log("strategyTrades in components StrategyControls", strategy);
+
+  // {title: "Satoshi - MA cross - daily", description: "Satoshi - MA cross - daily"}
+
   return (
     <div className="w-1/3">
       <div className="bg-gray-100 p-4 rounded-lg shadow-inner mb-4">
@@ -14,7 +22,7 @@ const StrategyControls: React.FC<StrategyControlsProps> = ({ onOpenModal }) => {
           <span>0% wBTC 100% USDC</span>
         </div>
         <div className="text-center my-4">
-          <p className="font-semibold">Satoshi - MA cross - daily</p>
+          <p className="font-semibold">{strategy?.title}</p>
           <button className="text-blue-500 underline text-sm">
             change strategy
           </button>
