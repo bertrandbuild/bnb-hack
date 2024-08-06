@@ -1,11 +1,11 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
+import React from "react";
+import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import App from './App.tsx'
-import './index.css'
+import App from "./App.tsx";
+import "./index.css";
 
 // import components
-import Onboarding from './pages/Onboarding.tsx';
+import Onboarding from "./pages/Onboarding.tsx";
 
 const router = createBrowserRouter([
   {
