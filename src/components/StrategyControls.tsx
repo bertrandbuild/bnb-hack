@@ -1,6 +1,10 @@
 import React from "react";
 
-const StrategyControls: React.FC = () => {
+interface StrategyControlsProps {
+  onOpenModal: () => void;
+}
+
+const StrategyControls: React.FC<StrategyControlsProps> = ({ onOpenModal }) => {
   return (
     <div className="w-1/3">
       <div className="bg-gray-100 p-4 rounded-lg shadow-inner mb-4">
@@ -16,7 +20,7 @@ const StrategyControls: React.FC = () => {
           </button>
         </div>
         <div className="flex justify-center items-center flex-col mt-4">
-          <button className="btn btn-primary mb-2">
+          <button className="btn btn-primary mb-2" onClick={onOpenModal}>
             Start the strategy
           </button>
           <span className="text-sm text-gray-500">- OR -</span>
