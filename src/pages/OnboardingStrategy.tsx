@@ -21,7 +21,7 @@ const strategies = [
       },
 ]
 
-const Onboarding: React.FC = () => {
+const OnboardingStrategy: React.FC = () => {
   return (
     <div className="flex flex-col">
       <div className="container mx-auto px-4 flex-grow">
@@ -43,4 +43,4 @@ const Onboarding: React.FC = () => {
   );
 };
 
-export default Onboarding;
+export default OnboardingStrategy;

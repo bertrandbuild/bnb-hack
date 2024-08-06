@@ -5,7 +5,7 @@ import App from "./App.tsx";
 import "./index.css";
 
 // import components
-import Onboarding from "./pages/Onboarding.tsx";
+import OnboardingStrategy from "./pages/OnboardingStrategy.tsx";
 
 const router = createBrowserRouter([
   {
@@ -14,7 +14,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Onboarding />,
+        element: <OnboardingStrategy />,
       },
     ],
   },
