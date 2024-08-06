@@ -30,7 +30,7 @@ const OnboardingPortfolio: React.FC = () => {
             <span className="ml-2 text-lg font-medium">USDT</span>
           </div>
           <div className="flex justify-center">
-          <RouterLink to="/dashboard">
+          <RouterLink to="/">
             <button className="btn btn-primary">
               Next
             </button>
