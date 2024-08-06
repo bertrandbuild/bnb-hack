@@ -27,9 +27,9 @@ const strategies = [
 const OnboardingStrategy: React.FC = () => {
   const { updateContext } = useGlobalContext();
 
+  // Add strategy to context
   const handleChooseStrategy = (strategy: IStrategy) => {
     updateContext("strategy", strategy );
-    console.log("My selection", strategy);
   };
 
   return (
