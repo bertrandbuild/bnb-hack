@@ -2,7 +2,8 @@ export interface ITrade {
   id: string;
   timestamp: number; // Unix timestamp in milliseconds
   action: "Buy" | "Sell";
-  token: string;
+  tokenPair: string; // e.g. "BTC/USDT"
+  reason: string; // explanation from the llm to remind
   baseAmount: number; // Amount in the base currency (e.g., BTC)
   quoteAmount: number; // Amount in the quote currency (e.g., USDT)
   price: number;
