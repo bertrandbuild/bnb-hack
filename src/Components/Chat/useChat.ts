@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { TransactionReceipt, Contract, ethers } from "ethers";
-import { chatGptVisionABI } from "../../ABIs/chatgptvision";
-import { ChatMessage } from "../Chat/interface";
+import { chatGptVisionABI } from "../../abis/chatgptvision";
+import { ChatMessage } from "./interface";
 import { IS_DEV } from "../../utils/constant";
 
 const useChat = () => {

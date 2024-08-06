@@ -1,6 +1,6 @@
 import useStrategy from './useStrategy';
 import Loading from '../Loading';
-import Message from '../Chat/Message';
+import Message from '../chat/Message';
 import useScreenshot from './useScreenshot';
 
 const ExecuteStrategy = () => {

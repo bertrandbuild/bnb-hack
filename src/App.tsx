@@ -1,7 +1,7 @@
 import './App.css'
 
-import TradingViewWidget from './Components/TradingViewWidget'
-import ExecuteStrategy from './Components/ExecuteStrategy/ExecuteStrategy';
+import TradingViewWidget from './components/TradingViewWidget'
+import ExecuteStrategy from './components/executeStrategy/ExecuteStrategy';
 
 function App() {
 
