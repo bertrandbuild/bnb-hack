@@ -8,6 +8,7 @@ import "./index.css";
 import OnboardingStrategy from "./pages/OnboardingStrategy.tsx";
 import OnboardingPortfolio from "./pages/OnboardingPortfolio.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
+import NotFound from "./pages/NotFound.tsx";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
       {
         path: "/dashboard",
         element: <Dashboard />,
+      },
+      {
+        path: "*",
+        element: <NotFound />,
       },
     ],
   },
