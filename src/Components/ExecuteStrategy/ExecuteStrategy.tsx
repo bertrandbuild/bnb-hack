@@ -9,7 +9,34 @@ import Message from "../Chat/Message";
 import Loading from "../Loading";
 
 // TODO: add prompt + trade history + strategy from context
-const prompt = "Do a technical analysis.";
+const usdcAmount = 100;
+const bnbAmount = 0;
+const prompt = `You are an asset manager. 
+I actually have : ${usdcAmount} USDC and ${bnbAmount} BNB
+Do a technical analysis of the chart and provide a recommendation on whether to buy, sell, or hold. 
+If we should buy or sell, always follow this format : ACTION: I want to swap {value} {assetFrom} to {assetTo} on Binance Smart Chain`;
+
+const templateLLMResponse = `
+Looking at the provided chart for Binance Coin (BNB) against USDT, it shows current data points and indicators that can guide our decision:
+
+Price Movement: BNB has been recently showing an upward trend, as indicated by the rally from around $320 USD to around $488 USD.
+
+Volume: There is a noticeable volume during the price increase, which supports the reliability of the trend.
+
+Moving Average: The price is currently above the Simple Moving Average (SMA) 9 close (537.3), which could indicate a positive momentum. It suggests the market could be bullish in the short term.
+
+Relative Strength Index (RSI): The RSI is at 33.80, which is closer to the lower end of the range but still above the typical 'oversold' threshold of 30. This suggests that there is room for upward movement before the asset becomes overbought.
+
+Recommendation:
+Based on the technical analysis, BNB is witnessing a bullish phase with support from both volume indicators and price action consistently remaining above the short-term moving average. Although the RSI is on the lower side indicating the asset is not overbought yet, one should watch for any sudden movements or changes.
+
+However, considering the upward trend and the relatively low level of RSI, it may be a good opportunity to invest in BNB due to potential further price appreciation.
+
+Suggested Action:
+ACTION: I want to swap 100 USDC to BNB on Binance Smart Chain.
+
+This action is based on the analysis and the bullish signals from the chart. However, always consider your personal financial situation or consult with a financial advisor to tailor decisions to your individual investment goals and risk tolerance.
+`
 
 const ExecuteStrategy = () => {
   const [screenshot, setScreenshot] = useState<string | null>(null);
@@ -189,7 +216,7 @@ const ExecuteStrategy = () => {
         setScreenshot(screenshotUrl); // display image for testing, can be removed
         await new Promise((resolve) => setTimeout(resolve, 1500));
         llmResponse = {
-          content: "The provided chart displays the price movement of Bitcoin (BTC) against Tether (USDT) using candlestick representation. Additionally, the chart includes a volume indicator below the price chart and the Relative Strength Index (RSI) indicator below that. ### Price Analysis: 1. **Price Movement**: The chart shows a significant downward movement in the price of Bitcoin. The large red candlestick indicates a strong sell-off. 2. **Current Price**: Bitcoin is currently priced at approximately $55,353.57 according to the chart. ### Volume Analysis: - The volume bars show a substantial increase in trading volume corresponding with the price drop, which suggests a strong selling pressure. ### RSI Analysis: - The RSI is displayed at 31.35, which places it near the oversold territory (usually considered oversold under 30). This could indicate that Bitcoin might be reaching a point where an upward correction could occur, as the market perceives it as undervalued. ### Conclusion and Possible Actions: - The market sentiment appears bearish given the sharp decline and the high trading volume. - Since RSI is close to oversold conditions, potential investors might watch for a possible reversal if other market conditions align, such as positive news or changes in market dynamics. - Current holders might consider their risk tolerance and either hold to weather any potential further drops anticipating future gains or limit losses if they believe the price could decrease further. It's important to consider using additional analysis techniques and data to make informed trading decisions, including fundamental analysis and broader market trends.",
+          content: templateLLMResponse,
           role: "assistant",
           transactionHash: "0x0"
         };
@@ -198,7 +225,43 @@ const ExecuteStrategy = () => {
         llmResponse = await startChatWithImage(ipfsHash, prompt);
       }
       setLlmResult(llmResponse);
-      setIsLoading(false);
+
+      const actionRegex = /(?:\*\*ACTION:\*\*|ACTION:)\s*I want to swap\s+(\d+)\s+(\w+)\s+to\s+(\w+)\s+on\s+Binance\s+Smart\s+Chain/;
+      const match = llmResponse?.content?.match(actionRegex);
+
+      if (match) {
+        const value = match[1];
+        const assetFrom = match[2];
+        const assetTo = match[3];
+
+        console.log("Value:", value);
+        console.log("Asset From:", assetFrom);
+        console.log("Asset To:", assetTo);
+
+        // if (!IS_DEV) { // TODO:
+        if (IS_DEV) {
+          try {
+            // await executeSwap({from: assetFrom, to: assetTo, value});
+            // TODO: update context with new portfolio values
+            console.log('wip: execute swap')
+            setIsLoading(false);
+          } catch (error) {
+            console.error("Error during swap process", error);
+            toast.error("An error occurred during the swap process.");
+            setIsLoading(false);
+          }
+        } else {
+          // TODO: update context with new portfolio values
+          console.log("Swap completed successfully!");
+          // toast.success("Swap completed successfully!");
+          setIsLoading(false);
+        }
+      } else {
+        console.error("Failed to parse intent");
+        console.error("LLM Response Content:", llmResponse?.content); // Debugging line
+        setIsLoading(false);
+      }
+
     } catch (error) {
       console.error(error);
       toast.error('An unknown error occurred');
