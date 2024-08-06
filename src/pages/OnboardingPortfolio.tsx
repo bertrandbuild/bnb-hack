@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
-const PortfolioPage: React.FC = () => {
+const OnboardingPortfolio: React.FC = () => {
   const [portfolioSize, setPortfolioSize] = useState<number>(500);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,4 +41,5 @@ const PortfolioPage: React.FC = () => {
   );
 };
 
-export default PortfolioPage;
+export default OnboardingPortfolio;
+
