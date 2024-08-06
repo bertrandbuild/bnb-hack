@@ -7,6 +7,7 @@ import "./index.css";
 // import components
 import OnboardingStrategy from "./pages/OnboardingStrategy.tsx";
 import OnboardingPortfolio from "./pages/OnboardingPortfolio.tsx";
+import Dashboard from "./pages/Dashboard.tsx";
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
       {
         path: "/onboarding-portfolio",
         element: <OnboardingPortfolio />,
+      },
+      {
+        path: "/dashboard",
+        element: <Dashboard />,
       },
     ],
   },
