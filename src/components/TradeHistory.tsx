@@ -10,24 +10,20 @@ const TradeHistory: React.FC = () => {
           <thead>
             <tr>
               <th>Nb</th>
-              <th>Date</th>
-              <th>Coin</th>
-              <th>Buy</th>
-              <th>Entry</th>
-              <th>Exit</th>
-              <th>Profit/Loss</th>
+              <th>Pair</th>
+              <th>Action</th>
+              <th>Amount</th>
+              <th>Reason</th>
             </tr>{" "}
           </thead>
           <tbody>
             {/* row */}
             <tr className="bg-base-200">
               <th>1</th>
-              <td>10-12-24</td>
               <td>BTC/USD</td>
+              <td>BUY</td>
               <td>100</td>
-              <td>50000</td>
-              <td>50700</td>
-              <td>+700</td>
+              <td>Cross MA...</td>
             </tr>
           </tbody>
         </table>
