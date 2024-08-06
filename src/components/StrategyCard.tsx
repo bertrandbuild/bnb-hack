@@ -23,7 +23,7 @@ const StrategyCard: React.FC<StrategyCardProps> = ({ title, description, buttonL
                 </div>
                 <p>{description}</p>
                 <div className="card-actions justify-center mt-4">
-                    <RouterLink to="/portfolio">
+                    <RouterLink to="/onboarding-portfolio">
                         <button className="btn btn-primary">{buttonLabel}</button>
                     </RouterLink>
                 </div>
