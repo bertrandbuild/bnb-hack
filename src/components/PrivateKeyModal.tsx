@@ -28,7 +28,7 @@ const PrivateKeyModal: React.FC<PrivateKeyModalProps> = ({
   return (
     <div className="fixed inset-0 bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-        <h2 className="text-xl font-semibold mb-4">Add your private key</h2>
+        <h2 className="text-xl font-semibold mb-4 text-primary">Add your private key</h2>
         <input
           type="password"
           placeholder="Enter your private key"
@@ -36,7 +36,7 @@ const PrivateKeyModal: React.FC<PrivateKeyModalProps> = ({
           onChange={handleInputChange}
           className="input input-bordered w-full mb-4"
         />
-        <p className="text-sm mb-4">
+        <p className="text-sm mb-4 text-secondary">
           Your private key is securely on a decentralized server. But this app
           is only for demo purpose, so never trust ot on mainnet for now (we
           will improve this later).

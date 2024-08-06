@@ -20,7 +20,7 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen p-4">
+    <div className="p-4">
       <div className="container mx-auto px-4 py-4 bg-white shadow-md rounded-lg">
         <div className="flex justify-between items-start">
           {/* Left Section: Chart and Trade History */}

@@ -15,21 +15,20 @@ const OnboardingPortfolio: React.FC = () => {
   console.log("portfolioSize: ", portfolioSize);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
-        <h1 className="text-2xl font-bold">
+        <h1 className="text-2xl font-bold text-primary">
           Define the size of your portfolio
         </h1>
-        <p className="mb-4 text-gray-600">To allocate to this strategy</p>
+        <p className="mb-4 text-gray-600 text-secondary">To allocate to this strategy</p>
         <div className="flex justify-center items-center mb-4">
           <input
             type="number"
-            className="input input-bordered text-center w-1/3"
+            className="input input-bordered text-center w-1/3 text-primary"
             value={portfolioSize}
             onChange={handleInputChange}
             min="500"
           />
-          <span className="ml-2 text-lg font-medium">USDT</span>
+          <span className="ml-2 text-lg font-medium text-secondary">USDT</span>
         </div>
         <div className="flex justify-center">
           <RouterLink to="/dashboard">
@@ -37,7 +36,6 @@ const OnboardingPortfolio: React.FC = () => {
           </RouterLink>
         </div>
       </div>
-    </div>
   );
 };
 

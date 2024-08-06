@@ -11,7 +11,7 @@ import Footer from "./components/Footer";
 function App() {
   return (
     <GlobalProvider>
-      <div className="min-h-screen flex flex-col">
+      <div className="bg-base-100 min-h-screen flex flex-col">
         <NavBar />
         <main className="flex-grow flex justify-center items-start px-4 py-0">
           <Outlet />

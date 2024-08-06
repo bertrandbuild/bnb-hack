@@ -36,7 +36,7 @@ const OnboardingStrategy: React.FC = () => {
     <div className="flex flex-col">
       <div className="container mx-auto px-4 flex-grow">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold">Choose your strategy</h1>
+          <h1 className="text-2xl font-bold text-primary">Choose your strategy</h1>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {strategies.map((strategy, index) => (
