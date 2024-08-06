@@ -2,6 +2,7 @@ import React from "react";
 
 // import components
 import ChartSection from "../components/ChartSection";
+import StrategyControls from "../components/StrategyControls";
 
 const Dashboard: React.FC = () => {
     return (
@@ -11,6 +12,7 @@ const Dashboard: React.FC = () => {
                     {/* Left Section: Chart and Trade History */}
                     <ChartSection />
                     {/* Right Section: Controls and Strategy Info */}
+                    <StrategyControls/>
                 </div>
             </div>
         </div>
