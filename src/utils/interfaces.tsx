@@ -25,3 +25,11 @@ export interface IStrategy {
   title: string;
   description: string;
 }
+
+export interface ITradeHistory {
+  id: number;
+  pair: string;
+  action: "Buy" | "Sell";
+  amount: number;
+  reason: string;
+}
