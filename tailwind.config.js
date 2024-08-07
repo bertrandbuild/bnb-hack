@@ -11,4 +11,8 @@ export default {
   plugins: [
     daisyui,
   ],
+  daisyui: {
+    themes: ["cupcake", "night"],
+  },
+  darkMode: ['class', '[data-theme="night"]']
 }
