@@ -10,16 +10,19 @@ const strategies = [
   {
     title: "Risk balancing",
     description: "Conservative",
+    badge: "New",
     buttonLabel: "Choose",
   },
   {
     title: "Ichimoku cloud",
     description: "Swing trading",
+    badge: "New",
     buttonLabel: "Choose",
   },
   {
     title: "MA Cross - Daily",
     description: "Swing trading",
+    badge: "New",
     buttonLabel: "Choose",
   },
 ];
@@ -44,6 +47,7 @@ const OnboardingStrategy: React.FC = () => {
               key={index}
               title={strategy.title}
               description={strategy.description}
+              badge={strategy.badge}
               buttonLabel={strategy.buttonLabel}
               onChoose={() => handleChooseStrategy(strategy)}
             />

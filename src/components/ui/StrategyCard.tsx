@@ -5,6 +5,7 @@ import Logo from "../../assets/images/logo.png";
 interface StrategyCardProps {
   title: string;
   description: string;
+  badge: string;
   buttonLabel: string;
   onChoose: () => void;
 }
@@ -12,11 +13,12 @@ interface StrategyCardProps {
 const StrategyCard: React.FC<StrategyCardProps> = ({
   title,
   description,
+  badge,
   buttonLabel,
   onChoose,
 }) => {
   return (
-    <div className="w-64 rounded-md shadow-md p-4">
+    <div className="w-80 rounded-md shadow-md p-4">
       <figure>
         <img src={Logo} alt="Logo" className="w-full h-auto rounded-full" />
       </figure>
@@ -24,7 +26,7 @@ const StrategyCard: React.FC<StrategyCardProps> = ({
         <div className="flex flex-col items-center">
           <h2 className="card-title text-center text-secondary">
             {title}
-            <div className="badge badge-secondary">NEW</div>
+            <div className="badge badge-secondary">{badge}</div>
           </h2>
         </div>
         <p className="text-primary">{description}</p>
