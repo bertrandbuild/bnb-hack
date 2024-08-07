@@ -1,12 +1,13 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
-import { IStrategyTrades, IStrategy } from "../utils/interfaces";
+import { IStrategyTrades, IStrategy, ITrade } from "../utils/interfaces";
 
 // This is the initial state of the global context (if not loaded from localStorage)
 const initialLocalStorageConfig = {
   userAddress: null,
   strategyTrades: null,
   strategy: null,
-  portfolioSize: 500,
+  portfolioSize: null,
+  trades: null,
 };
 
 // Specifies the structure of the global context, with a userAddress, strategyTrades, and an updateContext function.
@@ -14,7 +15,8 @@ interface IGlobalContextType {
   userAddress: string | null;
   strategyTrades: IStrategyTrades | null;
   strategy: IStrategy | null;
-  portfolioSize: number;
+  portfolioSize: number | null;
+  trades: ITrade[] | null;
   updateContext: (key: string, value: unknown) => void;
 }
 
@@ -23,7 +25,8 @@ const defaultContext: IGlobalContextType = {
   userAddress: null,
   strategyTrades: null,
   strategy: null,
-  portfolioSize: 500, // Default portfolio size
+  portfolioSize: null,
+  trades: null,
   updateContext: () => {},
 };
 
@@ -55,7 +58,7 @@ const loadAllFromLocalStorage = (config: Record<string, unknown>) => {
   );
 };
 
-// Saves a value to localStorage.
+
 const saveToLocalStorage = (key: string, value: unknown) => {
   if (typeof window !== 'undefined') {
     localStorage.setItem(key, JSON.stringify(value));

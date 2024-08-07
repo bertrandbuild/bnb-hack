@@ -26,7 +26,7 @@ const OnboardingPortfolio: React.FC = () => {
             className="input input-bordered text-center w-1/3 text-primary"
             value={portfolioSize}
             onChange={handleInputChange}
-            min="500"
+            min="0"
           />
           <span className="ml-2 text-lg font-medium text-secondary">USDT</span>
         </div>

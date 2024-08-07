@@ -13,6 +13,7 @@ const Dashboard: React.FC = () => {
     useModal();
 
   const handleConnect = (privateKey: string) => {
+    // TODO :
     // Add logic to handle the private key connection
     // Example logic (to be replaced with real implementation):
     // connectToService(privateKey);
