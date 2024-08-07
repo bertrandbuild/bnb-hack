@@ -2,7 +2,7 @@ export interface ITrade {
   id: string;
   timestamp: number; // Unix timestamp in milliseconds
   action: "Buy" | "Sell";
-  token: string;
+  pair: string;
   baseAmount: number; // Amount in the base currency (e.g., BTC)
   quoteAmount: number; // Amount in the quote currency (e.g., USDT)
   price: number;
@@ -13,6 +13,7 @@ export interface ITrade {
   status: "Completed" | "Cancelled" | "Pending";
   orderId?: string; // Optional field to link to the original order
   exchange: string; // The exchange where the trade occurred
+  reason: string;
 }
 
 export interface IStrategyTrades {
@@ -24,12 +25,4 @@ export interface IStrategyTrades {
 export interface IStrategy {
   title: string;
   description: string;
-}
-
-export interface ITradeHistory {
-  id: number;
-  pair: string;
-  action: "Buy" | "Sell";
-  amount: number;
-  reason: string;
 }

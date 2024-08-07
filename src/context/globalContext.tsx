@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
-import { IStrategyTrades, IStrategy, ITradeHistory } from "../utils/interfaces";
+import { IStrategyTrades, IStrategy, ITrade } from "../utils/interfaces";
 
 // This is the initial state of the global context (if not loaded from localStorage)
 const initialLocalStorageConfig = {
@@ -7,7 +7,7 @@ const initialLocalStorageConfig = {
   strategyTrades: null,
   strategy: null,
   portfolioSize: null,
-  tradeHistory: null,
+  trades: null,
 };
 
 // Specifies the structure of the global context, with a userAddress, strategyTrades, and an updateContext function.
@@ -16,7 +16,7 @@ interface IGlobalContextType {
   strategyTrades: IStrategyTrades | null;
   strategy: IStrategy | null;
   portfolioSize: number | null;
-  tradeHistory: ITradeHistory[] | null;
+  trades: ITrade[] | null;
   updateContext: (key: string, value: unknown) => void;
 }
 
@@ -26,7 +26,7 @@ const defaultContext: IGlobalContextType = {
   strategyTrades: null,
   strategy: null,
   portfolioSize: null,
-  tradeHistory: null,
+  trades: null,
   updateContext: () => {},
 };
 
