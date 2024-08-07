@@ -5,8 +5,8 @@ import "./App.css";
 import { GlobalProvider  } from "./context/globalContext";
 
 // import components
-import NavBar from "./components/NavBar";
-import Footer from "./components/Footer";
+import NavBar from "./components/ui/NavBar";
+import Footer from "./components/ui/Footer";
 
 function App() {
   return (

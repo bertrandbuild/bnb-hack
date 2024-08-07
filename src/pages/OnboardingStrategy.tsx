@@ -2,7 +2,7 @@ import React from "react";
 // import interfaces
 import { IStrategy } from "../utils/interfaces";
 // import components
-import StrategyCard from "../components/StrategyCard";
+import StrategyCard from "../components/ui/StrategyCard";
 // import global context
 import { useGlobalContext } from "../context/globalContext";
 

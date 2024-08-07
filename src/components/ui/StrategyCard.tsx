@@ -1,6 +1,6 @@
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import Logo from "../assets/images/logo.png";
+import Logo from "../../assets/images/logo.png";
 
 interface StrategyCardProps {
   title: string;
