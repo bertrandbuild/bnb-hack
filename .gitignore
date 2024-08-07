@@ -1,4 +1,48 @@
-# Logs
+# Backup files
+*.bak
+*.tmp
+*.swp
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Dependency directories
+node_modules/
+vendor/
+dist-ssr
+*.local
+
+# Build directories
+dist/
+build/
+bin/
+
+# IDE-specific configuration files
+.idea/
+*.sublime-workspace
+*.sublime-project
+.vscode/*
+!.vscode/extensions.json
+*.code-workspace
+*.xcworkspace
+*.swiftpm/
+*.user
+*.userprefs
+*.suo
+*.sln
+*.sln.docstates
+*.ntvs*
+*.njsproj
+*.sw?
+
+# Package and lock files (depending on the package manager used)
+yarn.lock
+composer.lock
+Gemfile.lock
+Pipfile.lock
+
+# Log files
 logs
 *.log
 npm-debug.log*
@@ -7,21 +51,25 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Certificate files
+*.pem
+*.cert
+*.key
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-.vercel
-
+# Environment configuration files and directories
 .env
+.env.local
+.env.*.local
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Cache directories and compiled Python files
+.cache/
+*.pyc
+__pycache__/
+
+# Vercel
+.vercel

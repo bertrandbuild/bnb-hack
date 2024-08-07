@@ -21,3 +21,8 @@ export interface IStrategyTrades {
   userAddress: string; // 0x User Address
   trades: ITrade[];
 }
+
+export interface IStrategy {
+  title: string;
+  description: string;
+}

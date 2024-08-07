@@ -1,20 +1,20 @@
-import './App.css'
+import { Outlet } from "react-router-dom";
+import "./App.css";
 
-import TradingViewWidget from './components/TradingViewWidget'
-import ExecuteStrategy from './components/executeStrategy/ExecuteStrategy';
+// import components
+import NavBar from "./components/ui/NavBar";
+import Footer from "./components/ui/Footer";
 
 function App() {
-
   return (
-    <section className='flex flex-row'>
-      <div className='w-[60vw] h-[80vh]'>
-        <TradingViewWidget />
-      </div>
-      <div className='w-[40vw] h-[80vh]'>
-        <ExecuteStrategy />
-      </div>
-    </section>
-  )
+    <div className="bg-base-100 min-h-screen flex flex-col">
+      <NavBar />
+      <main className="container mx-auto px-4 py-0">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
 }
 
-export default App
+export default App;
