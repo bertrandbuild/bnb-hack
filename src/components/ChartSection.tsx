@@ -1,7 +1,7 @@
 import React from "react";
 
 // import components
-import TradeHistory from "./TradeHistory";
+import TradeHistory from "./Portfolio/TradeHistory";
 import TradingViewWidget from "./ui/TradingViewWidget";
 
 const ChartSection: React.FC = () => {

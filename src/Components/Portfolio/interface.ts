@@ -16,13 +16,12 @@ export interface ITrade {
   exchange?: string; // The exchange where the trade occurred
 }
 
-export interface IStrategy {
-  title: string;
-  description: string;
-}
-
 export interface IPortfolio {
   initialQuoteSize: number;
   currentQuoteSize: number;
+  pnl: number;
+  totalBtc: number;
+  totalUsd: number;
   trades: ITrade[] | [];
 }
+
