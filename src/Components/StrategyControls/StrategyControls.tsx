@@ -8,19 +8,29 @@ import useScreenshot from "./useScreenshot";
 import Message from "../Chat/Message";
 import Loading from "../ui/Loading";
 
-const StrategyControls: React.FC<{ handleStartBacktesting: () => void }> = ({ handleStartBacktesting }) => {
-  const { strategy, portfolio, portfolioValue, pnl, totalBtc, totalUsd } = useGlobalContext();
+const StrategyControls: React.FC<{ handleStartBacktesting: () => void }> = ({
+  handleStartBacktesting,
+}) => {
+  const { strategy, portfolio, portfolioValue, pnl, totalBtc, totalUsd } =
+    useGlobalContext();
   const { isLoading, requestHash, llmResult, runStrategy } = useStrategy();
-  const {screenshot} = useScreenshot();
+  const { screenshot } = useScreenshot();
 
   return (
     <div className="w-1/3">
       <div className="bg-gray-100 p-4 rounded-lg shadow-inner mb-4">
         <div className="flex justify-between mb-2">
-          <span className="text-secondary">Initial {portfolio.initialQuoteSize} USDC</span>
+          <span className="text-secondary">
+            Initial {portfolio.initialQuoteSize} USDC
+          </span>
           <span className="text-secondary">Current {portfolioValue} USDC</span>
-          <span className="text-secondary">{pnl > 0 ? '+' : ''}{pnl.toFixed(2)} PNL</span>
-          <span className="text-secondary">${totalUsd} USD - {totalBtc} BTC</span>
+          <span className="text-secondary">
+            {pnl > 0 ? "+" : ""}
+            {pnl.toFixed(2)} PNL
+          </span>
+          <span className="text-secondary">
+            ${totalUsd} USD - {totalBtc} BTC
+          </span>
         </div>
         <div className="text-center my-4">
           <p className="font-semibold text-primary">{strategy?.title}</p>
@@ -31,7 +41,7 @@ const StrategyControls: React.FC<{ handleStartBacktesting: () => void }> = ({ ha
           </RouterLink>
         </div>
         <div className="flex justify-center items-center flex-col mt-4">
-          {!Loading && 
+          {!isLoading && (
             <>
               <button className="btn btn-primary mb-2" onClick={runStrategy}>
                 Start the strategy
@@ -40,17 +50,20 @@ const StrategyControls: React.FC<{ handleStartBacktesting: () => void }> = ({ ha
                 The strategy can't be changed after start
               </p>
             </>
-          }
+          )}
           {screenshot && <img src={screenshot} alt="screenshot" />}
           {isLoading && <Loading />}
           {requestHash && <p>Request Hash: {requestHash}</p>}
           {llmResult && <Message message={llmResult} />}
         </div>
         <div className="flex justify-center mt-4">
-        <button className="btn btn-warning w-full" onClick={handleStartBacktesting}>
-          Start backtesting (-60 days)
-        </button>
-      </div>
+          <button
+            className="btn btn-warning w-full"
+            onClick={handleStartBacktesting}
+          >
+            Start backtesting (-60 days)
+          </button>
+        </div>
       </div>
     </div>
   );
