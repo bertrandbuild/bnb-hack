@@ -32,7 +32,7 @@ const MessageUser = (props: ChatMessage) => {
           <div>
             Transaction hash:
             <a
-              className="underline pl-2"
+              className="underline pl-2 text-secondary"
               href={`https://explorer.galadriel.com/tx/${transactionHash}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -69,7 +69,7 @@ const Message = (props: MessageProps) => {
 
   return (
     <div className="message flex gap-4 mb-5">
-      <div className="flex-1 pt-1 break-all">
+      <div className="flex-1 pt-1 break-all text-secondary">
         {isUser ? (
           <MessageUser {...props.message} />
         ) : (

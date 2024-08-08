@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState} from "react";
 
 // import components
 import ChartSection from "../components/ChartSection";
@@ -9,8 +9,8 @@ import PrivateKeyModal from "../components/PrivateKeyModal";
 import { useModal } from "../hooks/useModal";
 
 const Dashboard: React.FC = () => {
-  const { isPrivateKeyModalOpen, handleOpenModal, handleCloseModal } =
-    useModal();
+    const { isPrivateKeyModalOpen, handleCloseModal } = useModal();
+    const [showBacktesting, setShowBacktesting] = useState(false);
 
   const handleConnect = (privateKey: string) => {
     // TODO :
@@ -20,14 +20,18 @@ const Dashboard: React.FC = () => {
     console.log(privateKey);
   };
 
+  const handleStartBacktesting = () => {
+    setShowBacktesting(true);
+  };
+
   return (
     <div className="p-4">
       <div className="p-4 bg-white shadow-md rounded-lg">
         <div className="flex justify-between items-start">
           {/* Left Section: Chart and Trade History */}
-          <ChartSection />
+          <ChartSection showBacktesting={showBacktesting} />
           {/* Right Section: Controls and Strategy Info */}
-          <StrategyControls onOpenModal={handleOpenModal} />
+          <StrategyControls handleStartBacktesting={handleStartBacktesting} />
         </div>
       </div>
 
