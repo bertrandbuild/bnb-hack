@@ -5,14 +5,12 @@ import { Link as RouterLink } from "react-router-dom";
 import { useGlobalContext } from "../context/globalContext";
 
 const OnboardingPortfolio: React.FC = () => {
-  const { portfolioSize, updateContext } = useGlobalContext();
+  const { portfolio, updateContext } = useGlobalContext();
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(event.target.value);
-    updateContext("portfolioSize", value); // Update context instead of local state
+    updateContext("portfolio", { ...portfolio, initialQuoteSize: value });
   };
-
-  console.log("portfolioSize: ", portfolioSize);
 
   return (
       <div className="container mx-auto px-4">
@@ -24,7 +22,7 @@ const OnboardingPortfolio: React.FC = () => {
           <input
             type="number"
             className="input input-bordered text-center w-1/3 text-primary"
-            value={portfolioSize}
+            value={portfolio.initialQuoteSize}
             onChange={handleInputChange}
             min="0"
           />

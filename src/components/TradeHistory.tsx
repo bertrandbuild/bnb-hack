@@ -4,7 +4,7 @@ import React from "react";
 import { useGlobalContext } from "../context/globalContext";
 
 const TradeHistory: React.FC = () => {
-  const { trades } = useGlobalContext();
+  const { portfolio } = useGlobalContext();
 
   return (
     <div className="bg-gray-100 p-4 rounded-lg shadow-inner">
@@ -22,18 +22,15 @@ const TradeHistory: React.FC = () => {
             </tr>{" "}
           </thead>
           <tbody>
-            {/* row : Check if strategyTrades exists before attempting to display transactions.
-            This prevents errors if strategyTrades is null or undefined.*/}
-            {trades &&
-              trades.map((trade) => (
-                <tr key={trade.id} className="bg-base-200">
-                  <th className="text-accent">{trade.id}</th>
-                  <td className="text-accent">{trade.tokenPair}</td>
-                  <td className="text-accent">{trade.action}</td>
-                  <td className="text-accent">{trade.quoteAmount}</td>
-                  <td className="text-accent">{trade.reason}</td>
-                </tr>
-              ))}
+            {portfolio.trades && portfolio.trades.map((trade) => (
+              <tr key={trade.id} className="bg-base-200">
+                <th className="text-accent">{trade.id}</th>
+                <td className="text-accent">{trade.tokenPair}</td>
+                <td className="text-accent">{trade.action}</td>
+                <td className="text-accent">{trade.quoteAmount}</td>
+                <td className="text-accent">{trade.reason}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
