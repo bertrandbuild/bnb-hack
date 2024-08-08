@@ -67,7 +67,6 @@ const useStrategy = () => {
       setIsLoading(false);
       return;
     }
-
     const { value, assetFrom, assetTo } = tradeIntent;
 
     try {
@@ -104,14 +103,15 @@ const useStrategy = () => {
       return;
     }
 
-    addTrade(tradeIntent);
-    await reloadPortfolioData(); // Reload portfolio data after trade
-    console.log("DEV Swap completed successfully : ", tradeIntent);
+    const newPortfolio = await addTrade(tradeIntent);
+    // Fetch the updated portfolio from the context
+    await reloadPortfolioData(newPortfolio);
+
     toast.success("Swap completed successfully!");
   }
 
   const fetchBTCPrice = async (): Promise<number> => {
-    const defaultBTCPrice = 50000;
+    const defaultBTCPrice = 50000; // FIXME: move to backend because cors + save in localStorage to avoid fetching every time
     try {
       const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
       return response.data.bitcoin.usd;
@@ -124,6 +124,7 @@ const useStrategy = () => {
   const addTrade = async (tradeIntent: ITradeIntent) => {
     const action = tradeIntent.assetFrom === 'USDC' ? 'Buy' : 'Sell';
     const btcPrice = await fetchBTCPrice();
+    const btcAmount = Number(tradeIntent.value) / btcPrice;
 
     const trade: ITrade = {
       id: uuid(),
@@ -131,12 +132,15 @@ const useStrategy = () => {
       action,
       tokenPair: `${tradeIntent.assetFrom}${tradeIntent.assetTo}`,
       reason: tradeIntent.reason,
-      baseAmount: Number(tradeIntent.value),
-      quoteAmount: Number(tradeIntent.value) * btcPrice, // TODO: get the real quote amount
-      price: btcPrice, // TODO: get the real price
+      baseAmount: btcAmount,
+      quoteAmount: Number(tradeIntent.value),
+      price: btcPrice,
       status: 'Completed'
     }
-    updateContext("portfolio", { ...portfolio, trades: [...portfolio.trades, trade] });
+    const newPortfolio = { ...portfolio, trades: [...portfolio.trades, trade] };
+    await updateContext("portfolio", newPortfolio);
+    console.log("portfolio after add trade", newPortfolio);
+    return newPortfolio;
   }
 
   // Detect a swap intent from a llm response

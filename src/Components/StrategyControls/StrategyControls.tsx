@@ -9,7 +9,7 @@ import Message from "../Chat/Message";
 import Loading from "../ui/Loading";
 
 const StrategyControls: React.FC = () => {
-  const { strategy, portfolio, portfolioValue, pnl, totalBtc, totalUsd } = useGlobalContext();
+  const { strategy, portfolio } = useGlobalContext();
   const { isLoading, requestHash, llmResult, runStrategy } = useStrategy();
   const {screenshot} = useScreenshot();
 
@@ -18,9 +18,9 @@ const StrategyControls: React.FC = () => {
       <div className="bg-gray-100 p-4 rounded-lg shadow-inner mb-4">
         <div className="flex justify-between mb-2">
           <span className="text-secondary">Initial {portfolio.initialQuoteSize} USDC</span>
-          <span className="text-secondary">Current {portfolioValue} USDC</span>
-          <span className="text-secondary">{pnl > 0 ? '+' : ''}{pnl.toFixed(2)} PNL</span>
-          <span className="text-secondary">${totalUsd} USD - {totalBtc} BTC</span>
+          <span className="text-secondary">Current {portfolio.currentQuoteSize} USDC</span>
+          {portfolio.pnl > 0 && <span className="text-secondary">{portfolio.pnl.toFixed(2)} PNL</span>}
+          <span className="text-secondary">${portfolio.totalUsd} USD - {portfolio.totalBtc} BTC</span>
         </div>
         <div className="text-center my-4">
           <p className="font-semibold text-primary">{strategy?.title}</p>

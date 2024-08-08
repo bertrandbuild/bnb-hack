@@ -9,7 +9,7 @@ const OnboardingPortfolio: React.FC = () => {
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(event.target.value);
-    updateContext("portfolio", { ...portfolio, initialQuoteSize: value });
+    updateContext("portfolio", { ...portfolio, initialQuoteSize: value, currentQuoteSize: value, totalUsd: value });
   };
 
   return (

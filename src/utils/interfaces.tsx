@@ -24,5 +24,8 @@ export interface IStrategy {
 export interface IPortfolio {
   initialQuoteSize: number;
   currentQuoteSize: number;
+  pnl: number;
+  totalBtc: number;
+  totalUsd: number;
   trades: ITrade[] | [];
 }
