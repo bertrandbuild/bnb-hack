@@ -9,6 +9,7 @@ const ChartSection: React.FC = () => {
     <div className="flex-1 mr-4 w-full">
       <div className="bg-gray-200 rounded-lg overflow-hidden shadow-inner mb-4 h-[65vh]">
         <TradingViewWidget />
+        {/* TODO:backtesting component */}
       </div>
       {/* Bottom Section: Trade History */}
       <TradeHistory />
