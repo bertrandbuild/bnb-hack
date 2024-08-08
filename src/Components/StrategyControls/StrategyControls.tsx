@@ -8,7 +8,7 @@ import useScreenshot from "./useScreenshot";
 import Message from "../Chat/Message";
 import Loading from "../ui/Loading";
 
-const StrategyControls: React.FC = () => {
+const StrategyControls: React.FC<{ handleStartBacktesting: () => void }> = ({ handleStartBacktesting }) => {
   const { strategy, portfolio, portfolioValue, pnl, totalBtc, totalUsd } = useGlobalContext();
   const { isLoading, requestHash, llmResult, runStrategy } = useStrategy();
   const {screenshot} = useScreenshot();
@@ -31,7 +31,7 @@ const StrategyControls: React.FC = () => {
           </RouterLink>
         </div>
         <div className="flex justify-center items-center flex-col mt-4">
-          {!isLoading && 
+          {!Loading && 
             <>
               <button className="btn btn-primary mb-2" onClick={runStrategy}>
                 Start the strategy
@@ -46,6 +46,11 @@ const StrategyControls: React.FC = () => {
           {requestHash && <p>Request Hash: {requestHash}</p>}
           {llmResult && <Message message={llmResult} />}
         </div>
+        <div className="flex justify-center mt-4">
+        <button className="btn btn-warning w-full" onClick={handleStartBacktesting}>
+          Start backtesting (-60 days)
+        </button>
+      </div>
       </div>
     </div>
   );
