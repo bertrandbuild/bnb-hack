@@ -1,10 +1,12 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.tsx'
+import './index.css'
+import { GlobalProvider } from './context/globalContext';
+import { Toaster } from 'react-hot-toast';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import App from "./App.tsx";
-import "./index.css";
 
-// import components
+// import pages
 import OnboardingStrategy from "./pages/OnboardingStrategy.tsx";
 import OnboardingPortfolio from "./pages/OnboardingPortfolio.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
@@ -35,11 +37,12 @@ const router = createBrowserRouter([
   },
 ]);
 
-const rootElement = document.getElementById("root");
-if (rootElement) {
-  ReactDOM.createRoot(rootElement).render(
-    <React.StrictMode>
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <GlobalProvider>
       <RouterProvider router={router} />
-    </React.StrictMode>
-  );
-}
+      <Toaster position="top-right" />
+    </GlobalProvider>
+  </React.StrictMode>,
+)

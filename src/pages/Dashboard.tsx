@@ -2,7 +2,7 @@ import React from "react";
 
 // import components
 import ChartSection from "../components/ChartSection";
-import StrategyControls from "../components/StrategyControls";
+import StrategyControls from "../components/StrategyControls/StrategyControls";
 import PrivateKeyModal from "../components/PrivateKeyModal";
 
 // import hooks
@@ -22,7 +22,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="p-4">
-      <div className="container mx-auto px-4 py-4 bg-white shadow-md rounded-lg">
+      <div className="p-4 bg-white shadow-md rounded-lg">
         <div className="flex justify-between items-start">
           {/* Left Section: Chart and Trade History */}
           <ChartSection />

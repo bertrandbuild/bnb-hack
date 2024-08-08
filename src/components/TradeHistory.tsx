@@ -28,7 +28,7 @@ const TradeHistory: React.FC = () => {
               trades.map((trade) => (
                 <tr key={trade.id} className="bg-base-200">
                   <th className="text-accent">{trade.id}</th>
-                  <td className="text-accent">{trade.pair}</td>
+                  <td className="text-accent">{trade.tokenPair}</td>
                   <td className="text-accent">{trade.action}</td>
                   <td className="text-accent">{trade.quoteAmount}</td>
                   <td className="text-accent">{trade.reason}</td>
