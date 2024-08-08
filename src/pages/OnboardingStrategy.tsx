@@ -1,6 +1,6 @@
 import React from "react";
 // import interfaces
-import { IStrategy } from "../utils/interfaces";
+import { IStrategy } from "../components/StrategyControls/interface";
 // import components
 import StrategyCard from "../components/ui/StrategyCard";
 // import global context

@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
-import { IPortfolio, IStrategy } from "../utils/interfaces";
-import axios from 'axios';
+import { IPortfolio } from "../components/Portfolio/interface";
+import { IStrategy } from "../components/StrategyControls/interface";
 
 // This is the initial state of the global context (if not loaded from localStorage)
 const initialLocalStorageConfig = {
@@ -22,7 +22,6 @@ interface IGlobalContextType {
   strategy: IStrategy | null;
   portfolio: IPortfolio;
   updateContext: (key: string, value: unknown) => void;
-  reloadPortfolioData: (newPortfolio?: IPortfolio) => void;
 }
 
 // Default context values
@@ -38,7 +37,6 @@ const defaultContext: IGlobalContextType = {
     trades: [],
   },
   updateContext: () => {},
-  reloadPortfolioData: () => {},
 };
 
 // Creates a global context with the default values and a function to update the context.
@@ -79,44 +77,6 @@ export const GlobalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
-  const fetchBTCPrice = async (): Promise<number> => {
-    const defaultBTCPrice = 50000; // FIXME: move to backend because cors + save in localStorage to avoid fetching every time
-    try {
-      const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-      return response.data.bitcoin.usd;
-    } catch (error) {
-      console.error("Error fetching BTC price, using default value", error);
-      return defaultBTCPrice;
-    }
-  }
-
-  const calculatePortfolioValueAndPNL = async (portfolio: IPortfolio) => {
-    const { initialQuoteSize, trades, totalBtc, totalUsd } = portfolio;
-    const btcPrice = await fetchBTCPrice();
-  
-    let newTotalBtc = totalBtc;
-    let newTotalUsd = totalUsd;
-    trades.forEach((trade) => {
-      if (trade.action === 'Buy') {
-        newTotalBtc += trade.baseAmount;
-        newTotalUsd -= trade.baseAmount * trade.price;
-      } else {
-        newTotalBtc -= trade.baseAmount;
-        newTotalUsd += trade.baseAmount * trade.price;
-      }
-    });
-  
-    const currentQuoteSize = newTotalUsd + (newTotalBtc * btcPrice);
-    const pnl = ((currentQuoteSize - initialQuoteSize) / initialQuoteSize) * 100;
-  
-    return { currentQuoteSize, pnl, totalBtc: newTotalBtc, totalUsd: newTotalUsd };
-  }
-
-  const reloadPortfolioData = async (newPortfolio: IPortfolio = globalState.portfolio) => {
-    const { currentQuoteSize, pnl, totalBtc, totalUsd } = await calculatePortfolioValueAndPNL(newPortfolio);
-    updateContext('portfolio', { ...newPortfolio, currentQuoteSize, pnl, totalBtc, totalUsd });
-  };
-
   // Global function to update the context and save to localStorage
   const updateContext = (key: string, value: unknown) => {
     setGlobalState(prevState => {
@@ -133,12 +93,10 @@ export const GlobalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       ...prevState,
       ...loadAllFromLocalStorage(initialLocalStorageConfig)
     }));
-    const interval = setInterval(reloadPortfolioData, 24 * 60 * 60 * 1000); // 24 hours
-    return () => clearInterval(interval);
   }, []);
 
   return (
-    <GlobalContext.Provider value={{ ...globalState, updateContext, reloadPortfolioData }}>
+    <GlobalContext.Provider value={{ ...globalState, updateContext }}>
       {children}
     </GlobalContext.Provider>
   );

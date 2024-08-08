@@ -7,21 +7,17 @@ import useStrategy from "./useStrategy";
 import useScreenshot from "./useScreenshot";
 import Message from "../Chat/Message";
 import Loading from "../ui/Loading";
+import PortfolioDetails from "../Portfolio/PortfolioDetails";
 
 const StrategyControls: React.FC = () => {
-  const { strategy, portfolio } = useGlobalContext();
+  const { strategy } = useGlobalContext();
   const { isLoading, requestHash, llmResult, runStrategy } = useStrategy();
   const {screenshot} = useScreenshot();
 
   return (
     <div className="w-1/3">
       <div className="bg-gray-100 p-4 rounded-lg shadow-inner mb-4">
-        <div className="flex justify-between mb-2">
-          <span className="text-secondary">Initial {portfolio.initialQuoteSize} USDC</span>
-          <span className="text-secondary">Current {portfolio.currentQuoteSize} USDC</span>
-          {portfolio.pnl > 0 && <span className="text-secondary">{portfolio.pnl.toFixed(2)} PNL</span>}
-          <span className="text-secondary">${portfolio.totalUsd} USD - {portfolio.totalBtc} BTC</span>
-        </div>
+        <PortfolioDetails />
         <div className="text-center my-4">
           <p className="font-semibold text-primary">{strategy?.title}</p>
           <RouterLink to="/">
