@@ -4,3 +4,8 @@ export interface ITradeIntent {
   assetTo: string;
   reason: string;
 }
+
+export interface IStrategy {
+  title: string;
+  description: string;
+}

@@ -7,23 +7,7 @@ import { ITradeIntent } from "./interface";
 import useScreenshot from "./useScreenshot";
 import useChat from "../Chat/useChat";
 import { useGlobalContext } from "../../context/globalContext";
-import { ITrade } from "../../utils/interfaces";
-import { v4 as uuid } from 'uuid';
-import axios from 'axios';
-
-const usdcAmount = 100;
-const btcAmount = 0;
-
-// TODO: add prompt + trade history + strategy from context
-const prompt = `You are an asset manager. 
-I actually have : ${usdcAmount} USDC and ${btcAmount} BTC
-Do a technical analysis of the chart and provide a recommendation on whether to buy, sell, or hold. 
-If we should buy or sell, always follow this format : 
-\`\`\`
-ACTION: I want to swap {value} {assetFrom} to {assetTo}
-REASON: {explanation}
-\`\`\`
-`;
+import usePortfolio from "../Portfolio/usePortfolio";
 
 const templateLLMResponse = `
 Looking at the provided chart for Bitcoin (BTC) against USDT, it shows current data points and indicators that can guide our decision:
@@ -51,7 +35,19 @@ This action is based on the analysis and the bullish signals from the chart. How
 const useStrategy = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { requestHash, llmResult, setLlmResult, startChatWithImage } = useChat();
-  const { updateContext, portfolio, reloadPortfolioData } = useGlobalContext();
+  const { portfolio, updateContext } = useGlobalContext();
+  const { addTrade, calculatePortfolioValueAndPNL } = usePortfolio();
+
+  // TODO: add prompt + trade history + strategy from context
+  const prompt = `You are an asset manager. 
+  I actually have : ${portfolio.currentQuoteSize} USDC and ${portfolio.totalBtc} BTC
+  Do a technical analysis of the chart and provide a recommendation on whether to buy, sell, or hold. 
+  If we should buy or sell, always follow this format : 
+  \`\`\`
+  ACTION: I want to swap {value} {assetFrom} to {assetTo}
+  REASON: {explanation}
+  \`\`\`
+  `;
 
   const { takeTradingViewScreenshot, setScreenshot } = useScreenshot();
 
@@ -67,14 +63,13 @@ const useStrategy = () => {
       setIsLoading(false);
       return;
     }
-
     const { value, assetFrom, assetTo } = tradeIntent;
 
     try {
+      // TODO: execute trade
       // await executeSwap({from: assetFrom, to: assetTo, value});
       // TODO: update context with new portfolio values
       console.log('wip: execute PROD swap : ', value, assetFrom, assetTo);
-      await reloadPortfolioData(); // Reload portfolio data after trade
       setIsLoading(false);
     } catch (error) {
       console.error("Error during swap process", error);
@@ -104,39 +99,11 @@ const useStrategy = () => {
       return;
     }
 
-    addTrade(tradeIntent);
-    await reloadPortfolioData(); // Reload portfolio data after trade
-    console.log("DEV Swap completed successfully : ", tradeIntent);
+    const newPortfolio = await addTrade(tradeIntent);
+    const { currentQuoteSize, pnl, totalBtc, totalUsd } = await calculatePortfolioValueAndPNL(newPortfolio);
+    updateContext('portfolio', { ...newPortfolio, currentQuoteSize, pnl, totalBtc, totalUsd });
+
     toast.success("Swap completed successfully!");
-  }
-
-  const fetchBTCPrice = async (): Promise<number> => {
-    const defaultBTCPrice = 50000;
-    try {
-      const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-      return response.data.bitcoin.usd;
-    } catch (error) {
-      console.error("Error fetching BTC price, using default value", error);
-      return defaultBTCPrice;
-    }
-  }
-
-  const addTrade = async (tradeIntent: ITradeIntent) => {
-    const action = tradeIntent.assetFrom === 'USDC' ? 'Buy' : 'Sell';
-    const btcPrice = await fetchBTCPrice();
-
-    const trade: ITrade = {
-      id: uuid(),
-      timestamp: new Date().getTime(),
-      action,
-      tokenPair: `${tradeIntent.assetFrom}${tradeIntent.assetTo}`,
-      reason: tradeIntent.reason,
-      baseAmount: Number(tradeIntent.value),
-      quoteAmount: Number(tradeIntent.value) * btcPrice, // TODO: get the real quote amount
-      price: btcPrice, // TODO: get the real price
-      status: 'Completed'
-    }
-    updateContext("portfolio", { ...portfolio, trades: [...portfolio.trades, trade] });
   }
 
   // Detect a swap intent from a llm response

@@ -1,9 +1,9 @@
 import React from "react";
 
 // import components
+import TradeHistory from "./Portfolio/TradeHistory";
 import TradingViewWidget from "./ui/TradingViewWidget";
 import Backtesting from "./ui/Backtesting";
-import TradeHistory from "./TradeHistory";
 
 const ChartSection: React.FC<{ showBacktesting: boolean }> = ({ showBacktesting }) => {
   return (
