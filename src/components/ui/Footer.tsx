@@ -5,7 +5,7 @@ const Footer: React.FC = () => {
     <footer className="footer footer-center bg-base-800 text-base-content mt-4">
       <aside>
         <p className="text-lg font-medium">
-          Copyright @{new Date().getFullYear()} - All right reserved by ...
+          Copyright @{new Date().getFullYear()} - All right reserved by Bertrand and YohanGH.
         </p>
       </aside>
     </footer>
