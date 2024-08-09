@@ -39,14 +39,58 @@ const useStrategy = () => {
   const { addTrade, calculatePortfolioValueAndPNL } = usePortfolio();
 
   // TODO: add prompt + trade history + strategy from context
-  const prompt = `You are an asset manager. 
-  I actually have : ${portfolio.currentQuoteSize} USDC and ${portfolio.totalBtc} BTC
-  Do a technical analysis of the chart and provide a recommendation on whether to buy, sell, or hold. 
-  If we should buy or sell, always follow this format : 
-  \`\`\`
-  ACTION: I want to swap {value} {assetFrom} to {assetTo}
-  REASON: {explanation}
-  \`\`\`
+  const prompt = `
+  **YOU ARE AN ASSET MANAGER**
+
+### STEP 1: IMAGE ANALYSIS
+
+1. **Technical Analysis**:
+    
+    - **Indicators**:
+        - **50-day Simple Moving Average (SMA)**: Orange line
+        - **200-day Exponential Moving Average (EMA)**: Green line
+2. **Identify Signals**:
+    - **Buy Signal**:
+        - **Condition**: The 50-day SMA (orange line) crosses above the 200-day EMA (green line) on the latest candlestick (rightmost candle) for daily chart readings.
+        - **Action**: Proceed to Step 2 with the BUY signal.
+    - **Sell Signal:**
+        - **Condition**: A candlestick crosses below the 200-day EMA (green line) after an initial buy signal, indicating a potential downtrend on the latest candlestick (rightmost candle) for daily charts.
+        - **Action**: Proceed to Step 2 with the SELL signal.
+    - **Otherwise**:
+        - **Action**: Return output: HOLD
+
+### STEP 2: TRADE ANALYSIS
+
+1. **Check Trade Status**:
+    - **No Trade in Progress**:
+        - **Buy Signal**:
+            - **Action**: Return response ACTION = BUY
+        - **Sell Signal**:
+            - **Action**: Return response ACTION = HOLD (since no position to sell)
+    - **Trade in Progress**:
+        - **New Buy Signal**:
+            - **Condition**: New buy signal detected.
+            - **Action**: Return response ACTION = BUY
+        - **New Sell Signal**:
+            - **Condition**: New sell signal detected.
+            - **Action**: Return response ACTION = SELL
+        - **Old Signal**:
+            - **Condition**: No new signal detected.
+            - **Action**: Return response ACTION = HOLD
+
+### CURRENT STATUS
+
+- **Action Options**: \`Buy\` | \`Sell\` | \`Hold\`
+- **Current Portfolio**: ${portfolio.currentQuoteSize} USDC | ${portfolio.totalBtc} BTC
+
+### RESPONSE FORMAT
+
+- **Format** (maximum 300 characters):
+
+\`\`\`markdown
+ACTION: I want to swap {value} {assetFrom} to {assetTo} BTC
+REASON: \${Explain why you made this decision}
+\`\`\`
   `;
 
   const { takeTradingViewScreenshot, setScreenshot } = useScreenshot();
@@ -69,6 +113,10 @@ const useStrategy = () => {
       // TODO: execute trade
       // await executeSwap({from: assetFrom, to: assetTo, value});
       // TODO: update context with new portfolio values
+      const newPortfolio = await addTrade(tradeIntent);
+      const { currentQuoteSize, pnl, totalBtc, totalUsd } = await calculatePortfolioValueAndPNL(newPortfolio);
+      updateContext('portfolio', { ...newPortfolio, currentQuoteSize, pnl, totalBtc, totalUsd });
+
       console.log('wip: execute PROD swap : ', value, assetFrom, assetTo);
       setIsLoading(false);
     } catch (error) {
