@@ -16,10 +16,10 @@ const StrategyControls: React.FC<{ handleStartBacktesting: () => void }> = ({ ha
 
   return (
     <div className="w-1/3">
-      <div className="bg-gray-100 p-4 rounded-lg shadow-inner mb-4">
+      <div className="bg-gray-100 rounded-lg shadow-inner">
         <PortfolioDetails />
         <div className="text-center my-4">
-          <p className="font-semibold text-primary">{strategy?.title}</p>
+          <p className="font-semibold text-primary mb-4">{strategy?.title}</p>
           <RouterLink to="/">
             <button className="btn text-blue-500 underline text-sm">
               change strategy
@@ -32,14 +32,14 @@ const StrategyControls: React.FC<{ handleStartBacktesting: () => void }> = ({ ha
               <button className="btn btn-primary mb-2" onClick={runStrategy}>
                 Start the strategy
               </button>
-              <p className="text-xs text-gray-400 mt-2 text-neutral">
+              <p className="text-xs mt-2 text-neutral text-center">
                 The strategy can't be changed after start
               </p>
             </>
           )}
           {screenshot && <img src={screenshot} alt="screenshot" />}
           {isLoading && <Loading />}
-          {requestHash && <p>Request Hash: {requestHash}</p>}
+          {requestHash && <p className="text-sm mt-6 text-primary text-ellipsis overflow-hidden">Request Hash: {requestHash}</p>}
           {llmResult && <Message message={llmResult} />}
         </div>
         <div className="flex justify-center mt-4">

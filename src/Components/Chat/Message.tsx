@@ -4,6 +4,7 @@ import { HiUser } from "react-icons/hi";
 import { ChatMessage } from "./interface";
 // import { useGlobalContext } from "../../context/globalContext";
 import Markdown from "react-markdown";
+import styles from "./Message.module.css"
 
 export interface MessageProps {
   message: ChatMessage;
@@ -32,7 +33,7 @@ const MessageUser = (props: ChatMessage) => {
           <div>
             Transaction hash:
             <a
-              className="underline pl-2 text-secondary"
+              className="underline pl-2"
               href={`https://explorer.galadriel.com/tx/${transactionHash}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -52,7 +53,7 @@ const ManagerMessage = (props: ChatMessage) => {
   return (
     <>
       <div className="avatar">
-        <div className={`size-8 bg-green-500 rounded-full`}>
+        <div className={`size-8 bg-green-500 rounded-full mt-4`}>
           <img alt="avatar manager" src={'https://picsum.photos/200/300'} />
         </div>
       </div>
@@ -68,8 +69,8 @@ const Message = (props: MessageProps) => {
   const isUser = role === "user";
 
   return (
-    <div className="message flex gap-4 mb-5">
-      <div className="flex-1 pt-1 break-all text-secondary">
+    <div className="message w-full">
+      <div className={`text-secondary ${styles['markdown-container']}`}>
         {isUser ? (
           <MessageUser {...props.message} />
         ) : (
