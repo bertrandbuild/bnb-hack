@@ -8,20 +8,9 @@ import { useGlobalContext } from "../context/globalContext";
 
 const strategies = [
   {
-    title: "Risk balancing",
-    description: "Conservative",
-    badge: "New",
-    buttonLabel: "Choose",
-  },
-  {
-    title: "Ichimoku cloud",
-    description: "Swing trading",
-    badge: "New",
-    buttonLabel: "Choose",
-  },
-  {
-    title: "MA Cross - Daily",
-    description: "Swing trading",
+    title: "CrossGuard Trend",
+    description:
+      "The CrossGuard Trend Strategy is a trading approach designed to capture long-term trends while minimizing the risk of significant losses. It combines key elements of technical analysis and rigorous risk management to optimize entries and exits on the financial markets.",
     badge: "New",
     buttonLabel: "Choose",
   },
@@ -32,14 +21,16 @@ const OnboardingStrategy: React.FC = () => {
 
   // Add strategy to context
   const handleChooseStrategy = (strategy: IStrategy) => {
-    updateContext("strategy", strategy );
+    updateContext("strategy", strategy);
   };
 
   return (
     <div className="flex flex-col">
       <div className="container mx-auto px-4 flex-grow">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-primary">Choose your strategy</h1>
+          <h1 className="text-2xl font-bold text-primary">
+            Choose your strategy
+          </h1>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {strategies.map((strategy, index) => (
