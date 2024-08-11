@@ -1,5 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
+
+// import components
+import StartBacktestingAuto from "../StartBacktestingAuto";
 
 // import global context
 import { useGlobalContext } from "../../context/globalContext";
@@ -9,10 +12,18 @@ import Message from "../Chat/Message";
 import Loading from "../ui/Loading";
 import PortfolioDetails from "../Portfolio/PortfolioDetails";
 
-const StrategyControls: React.FC<{ handleStartBacktesting: () => void }> = ({ handleStartBacktesting }) => {
+const StrategyControls: React.FC<{ handleStartBacktesting: () => void }> = ({
+  handleStartBacktesting,
+}) => {
   const { strategy } = useGlobalContext();
   const { isLoading, requestHash, llmResult, runStrategy } = useStrategy();
   const { screenshot } = useScreenshot();
+  const [isBacktesting, setIsBacktesting] = useState(false);
+
+  const handleBacktestingClick = () => {
+    setIsBacktesting(true);
+    handleStartBacktesting();
+  };
 
   return (
     <div className="w-1/3">
@@ -30,7 +41,7 @@ const StrategyControls: React.FC<{ handleStartBacktesting: () => void }> = ({ ha
           {!isLoading && (
             <>
               <button className="btn btn-primary mb-2" onClick={runStrategy}>
-                Start the strategy
+                {isBacktesting ? "Start the backtesting" : "Start the strategy"}
               </button>
               <p className="text-xs mt-2 text-neutral text-center">
                 The strategy can't be changed after start
@@ -39,15 +50,25 @@ const StrategyControls: React.FC<{ handleStartBacktesting: () => void }> = ({ ha
           )}
           {screenshot && <img src={screenshot} alt="screenshot" />}
           {isLoading && <Loading />}
-          {requestHash && <p className="text-sm mt-6 text-primary text-ellipsis overflow-hidden">Request Hash: {requestHash}</p>}
+          {requestHash && (
+            <p className="text-sm mt-6 text-primary text-ellipsis overflow-hidden">
+              Request Hash: {requestHash}
+            </p>
+          )}
           {llmResult && <Message message={llmResult} />}
+        </div>
+        <div className="">
+          {/* Code to be absolutely refactored horrible   */}
+          {isBacktesting ? <StartBacktestingAuto /> : ""}
         </div>
         <div className="flex justify-center mt-4">
           <button
             className="btn btn-warning w-full"
-            onClick={handleStartBacktesting}
+            onClick={handleBacktestingClick}
           >
-            Start backtesting (-60 days)
+            {isBacktesting
+              ? "Backtesting in progress..."
+              : "Start backtesting (-60 days)"}
           </button>
         </div>
       </div>
