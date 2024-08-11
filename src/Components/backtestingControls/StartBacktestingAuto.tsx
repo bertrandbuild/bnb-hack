@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 
+// import components
+import AnalysisLauncher from "./AnalysisLauncher";
+
 const StartBacktestingAuto: React.FC = () => {
   const [value, setValue] = useState(5);
 
@@ -66,6 +69,10 @@ const StartBacktestingAuto: React.FC = () => {
           <span className="font-bold text-blue-500">{backtestingTime}</span>
         </p>
       </div>
+      <div>
+          {/* Remove analysisCount hard cord add in context value in components  */}
+          <AnalysisLauncher analysisCount={value} />
+        </div>
     </div>
   );
 };
