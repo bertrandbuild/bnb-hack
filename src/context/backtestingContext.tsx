@@ -1,13 +1,22 @@
 import React, { createContext, useState, useContext } from "react";
 
-interface BacktestingContextProps {
-  backtesting: any[];
-  setBacktesting: React.Dispatch<React.SetStateAction<any[]>>;
-  showBacktesting: boolean;
-  handleStartBacktesting: () => void;
+interface BacktestResult {
+  id: number;
+  date: string;
+  result: number;
 }
 
-const BacktestingContext = createContext<BacktestingContextProps | undefined>(undefined);
+interface BacktestingContextProps {
+  backtesting: BacktestResult[];
+  setBacktesting: React.Dispatch<React.SetStateAction<BacktestResult[]>>;
+  showBacktesting: boolean;
+  handleStartBacktesting: () => void;
+  toggleBacktesting: () => void;
+}
+
+const BacktestingContext = createContext<BacktestingContextProps | undefined>(
+  undefined
+);
 
 export const useBacktestingContext = () => {
   const context = useContext(BacktestingContext);
@@ -18,16 +27,26 @@ export const useBacktestingContext = () => {
 };
 
 const BacktestingProvider = ({ children }: { children: React.ReactNode }) => {
-  const [backtesting, setBacktesting] = useState<any[]>([]);
+  const [backtesting, setBacktesting] = useState<BacktestResult[]>([]);
   const [showBacktesting, setShowBacktesting] = useState(false);
 
   const handleStartBacktesting = () => {
     setShowBacktesting(true);
   };
 
+  const toggleBacktesting = () => {
+    setShowBacktesting((prevState) => !prevState);
+  };
+
   return (
     <BacktestingContext.Provider
-      value={{ backtesting, setBacktesting, showBacktesting, handleStartBacktesting }}
+      value={{
+        backtesting,
+        setBacktesting,
+        showBacktesting,
+        handleStartBacktesting,
+        toggleBacktesting,
+      }}
     >
       {children}
     </BacktestingContext.Provider>
