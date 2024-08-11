@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 // import components
@@ -19,13 +19,7 @@ const StrategyControls: React.FC = () => {
   const { strategy } = useGlobalContext();
   const { isLoading, requestHash, llmResult, runStrategy } = useStrategy();
   const { screenshot } = useScreenshot();
-  const [isBacktesting, setIsBacktesting] = useState(false);
-  const { handleStartBacktesting } = useBacktestingContext();
-
-  const handleBacktestingClick = () => {
-    setIsBacktesting(true);
-    handleStartBacktesting();
-  };
+  const { showBacktesting, toggleBacktesting } = useBacktestingContext();
 
   return (
     <div className="w-1/3">
@@ -42,7 +36,7 @@ const StrategyControls: React.FC = () => {
         <div className="flex justify-center items-center flex-col mt-4">
           {!isLoading && (
             <>
-              {isBacktesting ? (
+              {showBacktesting ? (
                 ""
               ) : (
                 <button className="btn btn-primary mb-2" onClick={runStrategy}>
@@ -66,14 +60,14 @@ const StrategyControls: React.FC = () => {
         </div>
         <div className="">
           {/* Code to be absolutely refactored horrible   */}
-          {isBacktesting ? <StartBacktestingAuto /> : ""}
+          {showBacktesting ? <StartBacktestingAuto /> : ""}
         </div>
         <div className="flex justify-center mt-4">
           <button
             className="btn btn-warning w-full"
-            onClick={handleBacktestingClick}
+            onClick={toggleBacktesting}
           >
-            {isBacktesting
+            {showBacktesting
               ? "Backtesting in progress..."
               : "Start backtesting (-60 days)"}
           </button>
