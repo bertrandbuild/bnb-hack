@@ -4,6 +4,7 @@ import App from "./App.tsx";
 import "./reset.css";
 import "./index.css";
 import { GlobalProvider } from "./context/globalContext";
+import BacktestingProvider from "./context/backtestingContext";
 import { Toaster } from "react-hot-toast";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
@@ -41,8 +42,10 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <GlobalProvider>
-      <RouterProvider router={router} />
-      <Toaster position="top-right" />
+      <BacktestingProvider>
+        <RouterProvider router={router} />
+        <Toaster position="top-right" />
+      </BacktestingProvider>
     </GlobalProvider>
   </React.StrictMode>
 );

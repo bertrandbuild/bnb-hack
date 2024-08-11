@@ -2,23 +2,25 @@ import React, { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 // import components
-import StartBacktestingAuto from "../StartBacktestingAuto";
+import StartBacktestingAuto from "../backtestingControls/StartBacktestingAuto";
+import Loading from "../ui/Loading";
+import Message from "../Chat/Message";
+import PortfolioDetails from "../Portfolio/PortfolioDetails";
+
+// import Hooks
+import useStrategy from "./useStrategy";
+import useScreenshot from "./useScreenshot";
 
 // import global context
 import { useGlobalContext } from "../../context/globalContext";
-import useStrategy from "./useStrategy";
-import useScreenshot from "./useScreenshot";
-import Message from "../Chat/Message";
-import Loading from "../ui/Loading";
-import PortfolioDetails from "../Portfolio/PortfolioDetails";
+import { useBacktestingContext } from "../../context/backtestingContext";
 
-const StrategyControls: React.FC<{ handleStartBacktesting: () => void }> = ({
-  handleStartBacktesting,
-}) => {
+const StrategyControls: React.FC = () => {
   const { strategy } = useGlobalContext();
   const { isLoading, requestHash, llmResult, runStrategy } = useStrategy();
   const { screenshot } = useScreenshot();
   const [isBacktesting, setIsBacktesting] = useState(false);
+  const { handleStartBacktesting } = useBacktestingContext();
 
   const handleBacktestingClick = () => {
     setIsBacktesting(true);
@@ -40,9 +42,14 @@ const StrategyControls: React.FC<{ handleStartBacktesting: () => void }> = ({
         <div className="flex justify-center items-center flex-col mt-4">
           {!isLoading && (
             <>
-              <button className="btn btn-primary mb-2" onClick={runStrategy}>
-                {isBacktesting ? "Start the backtesting" : "Start the strategy"}
-              </button>
+              {isBacktesting ? (
+                ""
+              ) : (
+                <button className="btn btn-primary mb-2" onClick={runStrategy}>
+                  {/* TODO Remove btn si start backtesting is true */}
+                  Start the strategy
+                </button>
+              )}
               <p className="text-xs mt-2 text-neutral text-center">
                 The strategy can't be changed after start
               </p>
