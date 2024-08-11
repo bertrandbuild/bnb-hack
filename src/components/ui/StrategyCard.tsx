@@ -1,6 +1,5 @@
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { loadImage } from "../../utils/imageLoader";
 
 interface StrategyCardProps {
   image: string;
@@ -23,7 +22,7 @@ const StrategyCard: React.FC<StrategyCardProps> = ({
     <div className="flex items-start justify-center">
       <div className="flex flex-col w-80 rounded-md shadow-md">
         <figure>
-          <img src={loadImage(image)} alt="Logo" className="w-full h-auto rounded-full" />
+          <img src={image} alt="Logo" className="w-full h-auto rounded-full" />
         </figure>
         <div className="card-body p-4 flex-grow">
           <div className="flex flex-col items-center">
