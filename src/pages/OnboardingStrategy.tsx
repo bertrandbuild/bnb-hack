@@ -1,20 +1,11 @@
 import React from "react";
+import { strategies } from "../utils/Strategies"
 // import interfaces
 import { IStrategy } from "../components/StrategyControls/interface";
 // import components
 import StrategyCard from "../components/ui/StrategyCard";
 // import global context
 import { useGlobalContext } from "../context/globalContext";
-
-const strategies = [
-  {
-    title: "CrossGuard Trend",
-    description:
-      "The CrossGuard Trend Strategy is a trading approach designed to capture long-term trends while minimizing the risk of significant losses. It combines key elements of technical analysis and rigorous risk management to optimize entries and exits on the financial markets.",
-    badge: "New",
-    buttonLabel: "Choose",
-  },
-];
 
 const OnboardingStrategy: React.FC = () => {
   const { updateContext } = useGlobalContext();
@@ -36,6 +27,7 @@ const OnboardingStrategy: React.FC = () => {
           {strategies.map((strategy, index) => (
             <StrategyCard
               key={index}
+              image={strategy.image}
               title={strategy.title}
               description={strategy.description}
               badge={strategy.badge}

@@ -1,6 +1,6 @@
-const images = import.meta.glob('../assets/images/backtesting/*.png', { eager: true, import: 'default' }) as Record<string, string>;
+const images = import.meta.glob('../../public/assets/images/*/*.png', { eager: true, import: 'default' }) as Record<string, string>;
 
 export const loadImage = (imageName: string): string => {
-  const imagePath = `../assets/images/backtesting/${imageName}`;
+  const imagePath = `${imageName}`;
   return images[imagePath] || '';
 };
