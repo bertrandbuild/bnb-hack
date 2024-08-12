@@ -41,16 +41,16 @@ const StartBacktestingAuto: React.FC = () => {
         />
         <div className="flex w-full justify-between px-2 text-xs">
           <span className={value >= 0 ? "text-blue-500" : "text-neutral"}>
-            0
+            0%
           </span>
           <span className={value >= 25 ? "text-blue-500" : "text-neutral"}>
-            25
+            25%
           </span>
           <span className={value >= 50 ? "text-blue-500" : "text-neutral"}>
-            50
+            50%
           </span>
           <span className={value >= 75 ? "text-blue-500" : "text-neutral"}>
-            75
+            75%
           </span>
           <span
             className={value >= 1 ? "text-blue-500" : "text-neutral"}
