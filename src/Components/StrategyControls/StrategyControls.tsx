@@ -39,7 +39,7 @@ const StrategyControls: React.FC = () => {
               {showBacktesting ? (
                 ""
               ) : (
-                <button className="btn btn-primary mb-2" onClick={runStrategy}>
+                <button className="btn btn-primary mb-2" onClick={() => runStrategy()}>
                   {/* TODO Remove btn si start backtesting is true */}
                   Start the strategy
                 </button>
