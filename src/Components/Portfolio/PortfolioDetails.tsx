@@ -16,9 +16,11 @@ const PortfolioDetails: React.FC = () => {
         <StatItem title="Initial Value" value={`${initialQuoteSize} USDC`} />
         <StatItem
           title="Current Value"
-          value={`${currentQuoteSize.toFixed(2)} USDC`}
+          value={`${currentQuoteSize ? currentQuoteSize.toFixed(2) : "0.00"} USDC`}
         />
-        {pnl > 0 && <StatItem title="% PNL" value={pnl.toFixed(1)} />}
+        {pnl !== null && pnl !== undefined && (
+          <StatItem title="% PNL" value={pnl.toFixed(1)} />
+        )}
       </div>
       {/* TODO : Implementation in ???
       <div className="stat">
