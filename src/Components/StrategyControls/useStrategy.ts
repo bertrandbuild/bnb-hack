@@ -42,6 +42,8 @@ const useStrategy = () => {
   const { takeTradingViewScreenshot, setScreenshot } = useScreenshot();
 
   // TODO: add prompt + trade history + strategy from context
+const tradeStatus = portfolio.trades.length > 0 ? "Trade in Progress" : "No Trade in Progress";
+
   const prompt = `
   **YOU ARE AN ASSET MANAGER**
 
@@ -85,6 +87,7 @@ const useStrategy = () => {
 
 - **Action Options**: \`Buy\` | \`Sell\` | \`Hold\`
 - **Current Portfolio**: ${portfolio.currentQuoteSize} USDC | ${portfolio.totalBtc} BTC
+- **Trade Status**: ${tradeStatus}
 
 ### RESPONSE FORMAT
 
@@ -166,8 +169,6 @@ REASON: \${Explain why you made this decision}
       setIsLoading(false);
       return;
     }
-
-    const { value, assetFrom, assetTo } = tradeIntent;
 
     try {
       // TODO: execute trade
