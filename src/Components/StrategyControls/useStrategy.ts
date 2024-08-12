@@ -1,6 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { uploadToIpfs } from "../../utils/ipfs";
+import { uploadUrlToPinata } from "../../utils/pinataUpload";
 import { ChatMessage } from "../Chat/interface";
 import { IS_DEV } from "../../utils/constant";
 import { ITradeIntent } from "./interface";
@@ -30,13 +31,15 @@ ACTION: I want to swap 100 USDC to BTC.
 REASON: The bullish signals from the chart suggest a good opportunity to invest in BTC due to potential further price appreciation.
 
 This action is based on the analysis and the bullish signals from the chart. However, always consider your personal financial situation or consult with a financial advisor to tailor decisions to your individual investment goals and risk tolerance.
-`
+`;
 
 const useStrategy = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { requestHash, llmResult, setLlmResult, startChatWithImage } = useChat();
+  const { requestHash, llmResult, setLlmResult, startChatWithImage } =
+    useChat();
   const { portfolio, updateContext } = useGlobalContext();
   const { addTrade, calculatePortfolioValueAndPNL } = usePortfolio();
+  const { takeTradingViewScreenshot, setScreenshot } = useScreenshot();
 
   // TODO: add prompt + trade history + strategy from context
   const prompt = `
@@ -93,11 +96,52 @@ REASON: \${Explain why you made this decision}
 \`\`\`
   `;
 
-  const { takeTradingViewScreenshot, setScreenshot } = useScreenshot();
-
-  const runStrategyProd = async () => {
+  // Capture a screenshot
+  const handleBlobs = async (): Promise<Blob[]> => {
     const { blob } = await takeTradingViewScreenshot();
-    const ipfsHash = await uploadToIpfs(blob);
+
+    if (!(blob instanceof Blob)) {
+      throw new Error("Expected Blob instance, got something else.");
+    }
+
+    return [blob];
+  };
+
+  // Manage images
+  const handleImages = async (urlPaths: string[]): Promise<string[]> => {
+    return urlPaths; // Returning paths as they are since they are already paths
+  };
+
+  // Upload Blobs to IPFS
+  const uploadToIpfsFromBlobs = async (blobs: Blob[]): Promise<string[]> => {
+    const ipfsHashes: string[] = [];
+    for (const blob of blobs) {
+      const ipfsHash = await uploadToIpfs(blob);
+      ipfsHashes.push(ipfsHash);
+    }
+    return ipfsHashes;
+  };
+
+  // Upload images to IPFS
+  const uploadToIpfsFromImages = async (
+    urlPaths: string[]
+  ): Promise<string[]> => {
+    const ipfsHashes: string[] = [];
+
+    for (const urlPath of urlPaths) {
+      try {
+        const ipfsHash = (await uploadUrlToPinata(urlPath)).IpfsHash; 
+        ipfsHashes.push(ipfsHash);
+      } catch (error) {
+        console.error(`Error uploading image ${urlPath}:`, error);
+        throw new Error(`Upload failed for ${urlPath}`);
+      }
+    }
+    return ipfsHashes;
+  };
+
+  // Run the strategy in production mode
+  const runStrategyProd = async (ipfsHash: string): Promise<void> => {
     const llmResponse = await startChatWithImage(ipfsHash, prompt);
     setLlmResult(llmResponse);
 
@@ -114,29 +158,36 @@ REASON: \${Explain why you made this decision}
       // await executeSwap({from: assetFrom, to: assetTo, value});
       // TODO: update context with new portfolio values
       const newPortfolio = await addTrade(tradeIntent);
-      const { currentQuoteSize, pnl, totalBtc, totalUsd } = await calculatePortfolioValueAndPNL(newPortfolio);
-      updateContext('portfolio', { ...newPortfolio, currentQuoteSize, pnl, totalBtc, totalUsd });
+      const { currentQuoteSize, pnl, totalBtc, totalUsd } =
+        await calculatePortfolioValueAndPNL(newPortfolio);
+      updateContext("portfolio", {
+        ...newPortfolio,
+        currentQuoteSize,
+        pnl,
+        totalBtc,
+        totalUsd,
+      });
 
-      console.log('wip: execute PROD swap : ', value, assetFrom, assetTo);
+      console.log("wip: execute PROD swap : ", value, assetFrom, assetTo);
       setIsLoading(false);
     } catch (error) {
       console.error("Error during swap process", error);
       toast.error("An error occurred during the swap process.");
       setIsLoading(false);
     }
-  }
+  };
 
   // Dev mode : simulate a llm response and do not upload the image + do not execute the swap
   const runStrategyDev = async () => {
     const { screenshotUrl } = await takeTradingViewScreenshot();
     setScreenshot(screenshotUrl); // display image for testing, can be removed
-    
+
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    
+
     const llmResponse: ChatMessage = {
       content: templateLLMResponse,
       role: "assistant",
-      transactionHash: "0x0"
+      transactionHash: "0x0",
     };
     setLlmResult(llmResponse);
 
@@ -148,49 +199,82 @@ REASON: \${Explain why you made this decision}
     }
 
     const newPortfolio = await addTrade(tradeIntent);
-    const { currentQuoteSize, pnl, totalBtc, totalUsd } = await calculatePortfolioValueAndPNL(newPortfolio);
-    updateContext('portfolio', { ...newPortfolio, currentQuoteSize, pnl, totalBtc, totalUsd });
+    const { currentQuoteSize, pnl, totalBtc, totalUsd } =
+      await calculatePortfolioValueAndPNL(newPortfolio);
+    updateContext("portfolio", {
+      ...newPortfolio,
+      currentQuoteSize,
+      pnl,
+      totalBtc,
+      totalUsd,
+    });
 
     toast.success("Swap completed successfully!");
-  }
+  };
 
   // Detect a swap intent from a llm response
   const handleIntent = (text: string): ITradeIntent | null => {
     // MATCH the pattern : **ACTION** or **ACTION:** or ACTION: I want to swap {value} {assetFrom} to {assetTo}
     // REASON: {explanation}
-    const actionRegex = /(?:\*\*ACTION\*\*|ACTION:|\*\*ACTION:\*\*)\s*I want to swap\s+(\d+)\s+(\w+)\s+to\s+(\w+)\s*(?:\.\s*|\s*)(?:\n|\r\n)(?:\*\*REASON\*\*|REASON:|\*\*REASON:\*\*)\s*(.*?)(?:\.\s*|\s*$)/;
+    const actionRegex =
+      /(?:\*\*ACTION\*\*|ACTION:|\*\*ACTION:\*\*)\s*I want to swap\s+(\d+)\s+(\w+)\s+to\s+(\w+)\s*(?:\.\s*|\s*)(?:\n|\r\n)(?:\*\*REASON\*\*|REASON:|\*\*REASON:\*\*)\s*(.*?)(?:\.\s*|\s*$)/;
     const match = text.match(actionRegex);
-    
+
     if (!match) {
       console.error("No match found for the action regex.");
       return null;
     }
-    
+
     const value = match[1];
     const assetFrom = match[2];
     const assetTo = match[3];
     const reason = match[4];
-    
-    return { value, assetFrom, assetTo, reason };
-  }
 
-  const runStrategy = async () => {
+    return { value, assetFrom, assetTo, reason };
+  };
+
+  const runStrategy = async (urlPaths?: string[]) => {
     try {
       setIsLoading(true);
-      await (IS_DEV ? runStrategyDev() : runStrategyProd());
-      setIsLoading(false);
+
+      if (IS_DEV) {
+        await runStrategyDev();
+      } else {
+        let ipfsHashes: string[];
+
+        if (urlPaths && urlPaths.length > 0) {
+          // Use past images if provided
+          const handledImages = await handleImages(urlPaths);
+          ipfsHashes = await uploadToIpfsFromImages(handledImages);
+        } else {
+          // Alternatively, take a screenshot
+          const blobs = await handleBlobs();
+          ipfsHashes = await uploadToIpfsFromBlobs(blobs);
+        }
+
+        // Ensure that at least one IPFS hash has been generated
+        if (ipfsHashes.length === 0) {
+          throw new Error("No IPFS hash was generated.");
+        }
+
+        // Run the strategy in production with the first IPFS hash
+        await runStrategyProd(ipfsHashes[0]);
+      }
     } catch (error) {
       console.error(error);
-      toast.error('An unknown error occurred');
+      toast.error("An unknown error occurred");
+      setIsLoading(false);
+    } finally {
+      console.log("Finished running strategy");
       setIsLoading(false);
     }
-  }
+  };
 
   return {
     isLoading,
     requestHash,
     llmResult,
-    runStrategy
+    runStrategy,
   };
 };
 
