@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import AnalysisLauncher from "./AnalysisLauncher";
 
 const StartBacktestingAuto: React.FC = () => {
-  const [value, setValue] = useState(5);
+  const [value, setValue] = useState(2);
 
   // Define a conversion factor (for example, each unit of value = 2 minutes)
   const conversionFactor = 1;
@@ -58,7 +58,7 @@ const StartBacktestingAuto: React.FC = () => {
         </div>
       </div>
 
-      {/* Affichage de la valeur actuelle du curseur */}
+      {/* Display of current cursor value */}
       <div className="mt-4 text-center text-lg">
         <p className="text-neutral">
           Number of days Backtesting :{" "}
