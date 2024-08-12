@@ -12,7 +12,7 @@ const PortfolioDetails: React.FC = () => {
 
   return (
     <div className="flex">
-      <div className="stats stats-horizontal shadow rounded-lg w-full">
+      <div className="stats stats-vertical shadow rounded-lg w-full">
         <StatItem title="Initial Value" value={`${initialQuoteSize} USDC`} />
         <StatItem
           title="Current Value"
@@ -21,14 +21,11 @@ const PortfolioDetails: React.FC = () => {
         {pnl !== null && pnl !== undefined && (
           <StatItem title="% PNL" value={pnl.toFixed(1)} />
         )}
+        <StatItem
+          title="Value Portfolio"
+          value={`${portfolio.totalUsd} USD - ${portfolio.totalBtc.toFixed(5)} BTC`}
+        />
       </div>
-      {/* TODO : Implementation in ???
-      <div className="stat">
-        <div className="stat-title"></div>
-        <div className="stat-value text-xl text-secondary">
-          ${portfolio.totalUsd} USD - {portfolio.totalBtc.toFixed(5)} BTC
-        </div>
-      </div> */}
     </div>
   );
 };
