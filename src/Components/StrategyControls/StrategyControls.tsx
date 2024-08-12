@@ -70,7 +70,7 @@ const StrategyControls: React.FC = () => {
           >
             {showBacktesting
               ? "Backtesting in progress..."
-              : "Start backtesting (-60 days)"}
+              : "Start backtesting"}
           </button>
         </div>
       </div>
