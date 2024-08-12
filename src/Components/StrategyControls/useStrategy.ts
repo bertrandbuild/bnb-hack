@@ -2,11 +2,11 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { uploadToIpfs } from "../../utils/ipfs";
 import { uploadUrlToPinata } from "../../utils/pinataUpload";
-import { ChatMessage } from "../Chat/interface";
+import { ChatMessage } from "../chat/interface";
 import { IS_DEV } from "../../utils/constant";
 import { ITradeIntent } from "./interface";
 import useScreenshot from "./useScreenshot";
-import useChat from "../Chat/useChat";
+import useChat from "../chat/useChat";
 import { useGlobalContext } from "../../context/globalContext";
 import usePortfolio from "../Portfolio/usePortfolio";
 
@@ -101,14 +101,17 @@ REASON: \${Explain why you made this decision}
     const { blob } = await takeTradingViewScreenshot();
 
     if (!(blob instanceof Blob)) {
+      toast.error("Failed to capture screenshot.");
       throw new Error("Expected Blob instance, got something else.");
     }
 
+    toast.success("Screenshot captured successfully.");
     return [blob];
   };
 
   // Manage images
   const handleImages = async (urlPaths: string[]): Promise<string[]> => {
+    toast.success("Images handled successfully.");
     return urlPaths; // Returning paths as they are since they are already paths
   };
 
@@ -116,8 +119,15 @@ REASON: \${Explain why you made this decision}
   const uploadToIpfsFromBlobs = async (blobs: Blob[]): Promise<string[]> => {
     const ipfsHashes: string[] = [];
     for (const blob of blobs) {
-      const ipfsHash = await uploadToIpfs(blob);
-      ipfsHashes.push(ipfsHash);
+      try {
+        const ipfsHash = await uploadToIpfs(blob);
+        ipfsHashes.push(ipfsHash);
+        toast.success("Image uploaded to IPFS successfully.");
+      } catch (error) {
+        toast.error("Failed to upload image to IPFS.");
+        console.error("Error uploading blob to IPFS:", error);
+        throw error;
+      }
     }
     return ipfsHashes;
   };
@@ -130,9 +140,11 @@ REASON: \${Explain why you made this decision}
 
     for (const urlPath of urlPaths) {
       try {
-        const ipfsHash = (await uploadUrlToPinata(urlPath)).IpfsHash; 
+        const ipfsHash = (await uploadUrlToPinata(urlPath)).IpfsHash;
         ipfsHashes.push(ipfsHash);
+        toast.success(`Image ${urlPath} uploaded to IPFS successfully.`);
       } catch (error) {
+        toast.error(`Failed to upload image ${urlPath} to IPFS.`);
         console.error(`Error uploading image ${urlPath}:`, error);
         throw new Error(`Upload failed for ${urlPath}`);
       }
@@ -143,14 +155,18 @@ REASON: \${Explain why you made this decision}
   // Run the strategy in production mode
   const runStrategyProd = async (ipfsHash: string): Promise<void> => {
     const llmResponse = await startChatWithImage(ipfsHash, prompt);
+
     setLlmResult(llmResponse);
+    toast.success("Received response from LLM.");
 
     const tradeIntent = handleIntent(llmResponse?.content);
 
     if (!tradeIntent) {
+      toast.error("No valid trade intent found.");
       setIsLoading(false);
       return;
     }
+
     const { value, assetFrom, assetTo } = tradeIntent;
 
     try {
@@ -168,48 +184,57 @@ REASON: \${Explain why you made this decision}
         totalUsd,
       });
 
-      console.log("wip: execute PROD swap : ", value, assetFrom, assetTo);
+      toast.success("Trade executed successfully.");
       setIsLoading(false);
     } catch (error) {
       console.error("Error during swap process", error);
-      toast.error("An error occurred during the swap process.");
       setIsLoading(false);
     }
   };
 
   // Dev mode : simulate a llm response and do not upload the image + do not execute the swap
   const runStrategyDev = async () => {
-    const { screenshotUrl } = await takeTradingViewScreenshot();
-    setScreenshot(screenshotUrl); // display image for testing, can be removed
+    try {
+      const { screenshotUrl } = await takeTradingViewScreenshot();
+      setScreenshot(screenshotUrl); // display image for testing, can be removed
+      toast.success("Screenshot taken for dev mode.");
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    const llmResponse: ChatMessage = {
-      content: templateLLMResponse,
-      role: "assistant",
-      transactionHash: "0x0",
-    };
-    setLlmResult(llmResponse);
+      const llmResponse: ChatMessage = {
+        content: templateLLMResponse,
+        role: "assistant",
+        transactionHash: "0x0",
+      };
+      setLlmResult(llmResponse);
+      toast.success("Simulated LLM response received.");
 
-    const tradeIntent = handleIntent(llmResponse?.content);
+      const tradeIntent = handleIntent(llmResponse?.content);
 
-    if (!tradeIntent) {
+      if (!tradeIntent) {
+        toast.error("No valid trade intent found in dev mode.");
+        setIsLoading(false);
+        return;
+      }
+
+      const newPortfolio = await addTrade(tradeIntent);
+      const { currentQuoteSize, pnl, totalBtc, totalUsd } =
+        await calculatePortfolioValueAndPNL(newPortfolio);
+      updateContext("portfolio", {
+        ...newPortfolio,
+        currentQuoteSize,
+        pnl,
+        totalBtc,
+        totalUsd,
+      });
+
+      toast.success("Simulated trade executed successfully in dev mode.");
+    } catch (error) {
+      console.error("Error during dev mode strategy execution:", error);
+      toast.error("An error occurred in dev mode.");
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    const newPortfolio = await addTrade(tradeIntent);
-    const { currentQuoteSize, pnl, totalBtc, totalUsd } =
-      await calculatePortfolioValueAndPNL(newPortfolio);
-    updateContext("portfolio", {
-      ...newPortfolio,
-      currentQuoteSize,
-      pnl,
-      totalBtc,
-      totalUsd,
-    });
-
-    toast.success("Swap completed successfully!");
   };
 
   // Detect a swap intent from a llm response
@@ -262,10 +287,10 @@ REASON: \${Explain why you made this decision}
       }
     } catch (error) {
       console.error(error);
-      toast.error("An unknown error occurred");
+      toast.error("An unknown error occurred during the strategy execution.");
       setIsLoading(false);
     } finally {
-      console.log("Finished running strategy");
+      toast.success("Finished running strategy.");
       setIsLoading(false);
     }
   };
