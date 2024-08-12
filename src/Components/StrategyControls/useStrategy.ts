@@ -69,17 +69,17 @@ const tradeStatus = portfolio.trades.length > 0 ? "Trade in Progress" : "No Trad
 1. **Check Trade Status**:
     - **No Trade in Progress**:
         - **Buy Signal**:
-            - **Action**: Return response ACTION = BUY
+            - **Action**: Return response ACTION = BUY, BTC PRICE = \${BTC price}
         - **Sell Signal**:
             - **Action**: Return response ACTION = HOLD (since no position to sell)
     - **Trade in Progress**:
         - **New Buy Signal**:
             - **Condition**: New buy signal detected.
-            - **Action**: Return response ACTION = BUY
+            - **Action**: Return response ACTION = HOLD (since a trade is already in progress)
         - **New Sell Signal**:
             - **Condition**: New sell signal detected.
-            - **Action**: Return response ACTION = SELL
-        - **Old Signal**:
+            - **Action**: Return response ACTION = SELL, BTC PRICE = \${BTC price}
+        - **Hold Signal**:
             - **Condition**: No new signal detected.
             - **Action**: Return response ACTION = HOLD
 
@@ -96,6 +96,7 @@ const tradeStatus = portfolio.trades.length > 0 ? "Trade in Progress" : "No Trad
 \`\`\`markdown
 ACTION: I want to swap {value} {assetFrom} to {assetTo} BTC
 REASON: \${Explain why you made this decision}
+BTC PRICE: \${BTC price}
 \`\`\`
   `;
 
@@ -163,6 +164,8 @@ REASON: \${Explain why you made this decision}
     toast.success("Received response from LLM.");
 
     const tradeIntent = handleIntent(llmResponse?.content);
+
+    if (tradeIntent === null) return;
 
     if (!tradeIntent) {
       toast.error("No valid trade intent found.");
@@ -240,13 +243,24 @@ REASON: \${Explain why you made this decision}
 
   // Detect a swap intent from a llm response
   const handleIntent = (text: string): ITradeIntent | null => {
+
+    const holdRegex = /HOLD|\*\*HOLD\*\*/g;
+    const holdMatch = text.match(holdRegex);
+
+    if (holdMatch) {
+      return null;
+    }
+
     // MATCH the pattern : **ACTION** or **ACTION:** or ACTION: I want to swap {value} {assetFrom} to {assetTo}
     // REASON: {explanation}
     const actionRegex =
       /(?:\*\*ACTION\*\*|ACTION:|\*\*ACTION:\*\*)\s*I want to swap\s+(\d+)\s+(\w+)\s+to\s+(\w+)\s*(?:\.\s*|\s*)(?:\n|\r\n)(?:\*\*REASON\*\*|REASON:|\*\*REASON:\*\*)\s*(.*?)(?:\.\s*|\s*$)/;
     const match = text.match(actionRegex);
 
-    if (!match) {
+    const priceBTCRegex = /\b\d{2},\d{3}\b/g;
+    const matchPriceBTC = text.match(priceBTCRegex)
+
+    if (!match || !matchPriceBTC) {
       console.error("No match found for the action regex.");
       return null;
     }
@@ -255,8 +269,15 @@ REASON: \${Explain why you made this decision}
     const assetFrom = match[2];
     const assetTo = match[3];
     const reason = match[4];
+    const priceBTC = matchPriceBTC[0];
 
-    return { value, assetFrom, assetTo, reason };
+    console.log("value", value);
+    console.log("assetFrom", assetFrom);
+    console.log("assetTo", assetTo);
+    console.log("reason", reason);
+    console.log("priceBTC", priceBTC);
+
+    return { value, assetFrom, assetTo, reason, priceBTC: parseInt(priceBTC)};
   };
 
   const runStrategy = async (urlPaths?: string[]) => {

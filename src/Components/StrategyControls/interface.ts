@@ -3,6 +3,7 @@ export interface ITradeIntent {
   assetFrom: string;
   assetTo: string;
   reason: string;
+  priceBTC: number;
 }
 
 export interface IStrategy {

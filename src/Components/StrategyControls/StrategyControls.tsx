@@ -69,7 +69,7 @@ const StrategyControls: React.FC = () => {
             onClick={toggleBacktesting}
           >
             {showBacktesting
-              ? "Backtesting in progress..."
+              ? "Start Analysis"
               : "Start backtesting"}
           </button>
         </div>
