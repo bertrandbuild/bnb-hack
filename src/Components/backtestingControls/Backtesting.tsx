@@ -8,13 +8,13 @@ const Backtesting: React.FC = () => {
 
   const handleNext = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex === backtestingChartes.length - 1 ? 0 : prevIndex + 1
+      prevIndex === 0 ? backtestingChartes.length - 1 : prevIndex - 1
     );
   };
-
+  
   const handlePrevious = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? backtestingChartes.length - 1 : prevIndex - 1
+      prevIndex === backtestingChartes.length - 1 ? 0 : prevIndex + 1
     );
   };
 
@@ -44,7 +44,7 @@ const Backtesting: React.FC = () => {
     <>
       <div className="flex flex-col items-center">
         <div className="tradingview-widget-container carousel">
-          {backtestingChartes.map((image, index) => (
+          {backtestingChartes.slice().reverse().map((image, index) => (
             <div
               key={index}
               onClick={toggleZoom}
