@@ -5,7 +5,6 @@ import { v4 as uuid } from 'uuid';
 import axios from 'axios';
 import { IPortfolio } from "./interface";
 
-
 const usePortfolio = () => {
   const { updateContext, portfolio } = useGlobalContext();
 
@@ -41,6 +40,7 @@ const usePortfolio = () => {
     console.log("portfolio after add trade", newPortfolio);
     return newPortfolio;
   }
+
 
   const calculatePortfolioValueAndPNL = async (portfolio: IPortfolio) => {
     const { initialQuoteSize, trades, totalBtc, totalUsd } = portfolio;
