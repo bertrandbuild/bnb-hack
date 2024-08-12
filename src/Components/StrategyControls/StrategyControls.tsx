@@ -4,7 +4,7 @@ import { Link as RouterLink } from "react-router-dom";
 // import components
 import StartBacktestingAuto from "../backtestingControls/StartBacktestingAuto";
 import Loading from "../ui/Loading";
-import Message from "../Chat/Message";
+import Message from "../chat/Message";
 import PortfolioDetails from "../Portfolio/PortfolioDetails";
 
 // import Hooks
@@ -14,6 +14,7 @@ import useScreenshot from "./useScreenshot";
 // import global context
 import { useGlobalContext } from "../../context/globalContext";
 import { useBacktestingContext } from "../../context/backtestingContext";
+
 
 const StrategyControls: React.FC = () => {
   const { strategy } = useGlobalContext();
@@ -58,7 +59,7 @@ const StrategyControls: React.FC = () => {
           )}
           {llmResult && <Message message={llmResult} />}
         </div>
-        <div className="">
+        <div>
           {/* Code to be absolutely refactored horrible   */}
           {showBacktesting ? <StartBacktestingAuto /> : ""}
         </div>
