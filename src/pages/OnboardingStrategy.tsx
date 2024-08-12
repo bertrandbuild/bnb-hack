@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 // import interfaces
 import { IStrategy } from "../components/StrategyControls/interface";
 // import components
 import StrategyCard from "../components/ui/StrategyCard";
+import CustomStrategyModal from "../components/CustomStrategyModal"; // Import the new modal
 // import global context
 import { useGlobalContext } from "../context/globalContext";
+import { useNavigate } from "react-router-dom";
 
 const strategies = [
   {
@@ -13,26 +15,29 @@ const strategies = [
     badge: "New",
     buttonLabel: "Choose",
   },
-  {
-    title: "Ichimoku cloud",
-    description: "Swing trading",
-    badge: "New",
-    buttonLabel: "Choose",
-  },
-  {
-    title: "MA Cross - Daily",
-    description: "Swing trading",
-    badge: "New",
-    buttonLabel: "Choose",
-  },
 ];
 
 const OnboardingStrategy: React.FC = () => {
   const { updateContext } = useGlobalContext();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
-  // Add strategy to context
-  const handleChooseStrategy = (strategy: IStrategy) => {
-    updateContext("strategy", strategy );
+  // Add strategy to context and navigate to next page
+  const handleChooseStrategy = (e: React.MouseEvent<HTMLButtonElement>, strategy: IStrategy) => {
+    e.preventDefault();
+    updateContext("strategy", strategy);
+    navigate("/onboarding-portfolio");
+  };
+
+  // Function to open the modal
+  const openNewStrategyModal = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setIsModalOpen(true);
+  };
+
+  // Function to close the modal
+  const closeNewStrategyModal = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -49,11 +54,20 @@ const OnboardingStrategy: React.FC = () => {
               description={strategy.description}
               badge={strategy.badge}
               buttonLabel={strategy.buttonLabel}
-              onChoose={() => handleChooseStrategy(strategy)}
+              onChoose={(e) => handleChooseStrategy(e, strategy)}
             />
           ))}
+          <StrategyCard
+            key={strategies.length}
+            title={"Custom strategy"}
+            description={"Create a custom strategy"}
+            badge={"New"}
+            buttonLabel={"Create"}
+            onChoose={(e) => openNewStrategyModal(e)}
+          />
         </div>
       </div>
+      <CustomStrategyModal isOpen={isModalOpen} onClose={closeNewStrategyModal} />
     </div>
   );
 };

@@ -1,5 +1,4 @@
 import React from "react";
-import { Link as RouterLink } from "react-router-dom";
 import Logo from "../../assets/images/logo.png";
 
 interface StrategyCardProps {
@@ -7,7 +6,7 @@ interface StrategyCardProps {
   description: string;
   badge: string;
   buttonLabel: string;
-  onChoose: () => void;
+  onChoose: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 const StrategyCard: React.FC<StrategyCardProps> = ({
@@ -31,11 +30,9 @@ const StrategyCard: React.FC<StrategyCardProps> = ({
         </div>
         <p className="text-primary">{description}</p>
         <div className="card-actions justify-center mt-4">
-          <RouterLink to="/onboarding-portfolio">
-            <button className="btn btn-primary" onClick={onChoose}>
-              {buttonLabel}
-            </button>
-          </RouterLink>
+          <button className="btn btn-primary" onClick={onChoose}>
+            {buttonLabel}
+          </button>
         </div>
       </div>
     </div>

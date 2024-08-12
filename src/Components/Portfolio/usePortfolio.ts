@@ -38,7 +38,6 @@ const usePortfolio = () => {
     }
     const newPortfolio = { ...portfolio, trades: [...portfolio.trades, trade] };
     await updateContext("portfolio", newPortfolio);
-    console.log("portfolio after add trade", newPortfolio);
     return newPortfolio;
   }
 
