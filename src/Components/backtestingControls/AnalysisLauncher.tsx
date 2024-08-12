@@ -39,26 +39,26 @@ const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
   };
 
   return (
-
     <div>
       <h2 className="text-lg font-bold mb-4 text-neutral">Start analysis</h2>
       <p className="text-lg mb-4 text-neutral">
-      Number of analyses to be performed: <strong className="text-blue-500">{analysisCount}</strong>
+        Number of analyses to be performed:{" "}
+        <strong className="text-blue-500">{analysisCount}</strong>
       </p>
       <button
         onClick={handleStartAnalysis}
         disabled={isAnalyzing}
         className="bg-blue-500 text-white p-2 rounded"
       >
-        {isAnalyzing || isLoading ? "Analysis in progress..." : "Start analysis"}
+        {isAnalyzing ? "Analysis in progress..." : "Start analysis"}
       </button>
-          {isLoading && <Loading />}
-          {requestHash && (
-            <p className="text-sm mt-6 text-primary text-ellipsis overflow-hidden">
-              Request Hash: {requestHash}
-            </p>
-          )}
-          {llmResult && <Message message={llmResult} />}
+      {isLoading && <Loading />}
+      {requestHash && (
+        <p className="text-sm mt-6 text-primary text-ellipsis overflow-hidden">
+          Request Hash: {requestHash}
+        </p>
+      )}
+      {llmResult && <Message message={llmResult} />}
     </div>
   );
 };
