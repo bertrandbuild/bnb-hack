@@ -13,6 +13,7 @@ const initialLocalStorageConfig = {
     totalBtc: 0,
     totalUsd: 0,
     trades: [],
+    tradeInProgress: null,
   },
 };
 
@@ -35,6 +36,7 @@ const defaultContext: IGlobalContextType = {
     totalBtc: 0,
     totalUsd: 0,
     trades: [],
+    tradeInProgress: null,
   },
   updateContext: () => {},
 };
