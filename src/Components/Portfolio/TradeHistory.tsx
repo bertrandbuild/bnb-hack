@@ -27,7 +27,6 @@ const TradeHistory: React.FC = () => {
                 <th className="bg-gray-100 text-accent">{trade.id}</th>
                 <td className="bg-gray-100 text-accent">{trade.tokenPair}</td>
                 <td className="bg-gray-100 text-accent">{trade.action}</td>
-                <td className="bg-gray-100 text-accent">{trade.quoteAmount}</td>
                 <td className="bg-gray-100 text-accent">{trade.reason}</td>
               </tr>
             ))}
