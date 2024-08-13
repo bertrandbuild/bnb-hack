@@ -4,8 +4,6 @@ export interface ITrade {
   action: "Buy" | "Sell";
   tokenPair: string; // e.g. "BTC/USDT"
   reason: string; // explanation from the llm to remind
-  baseAmount: number; // Amount in the base currency (e.g., BTC)
-  quoteAmount: number; // Amount in the quote currency (e.g., USDT)
   price: number;
   status: "Completed" | "Cancelled" | "Pending";
   fee?: {
@@ -22,6 +20,7 @@ export interface IPortfolio {
   pnl: number;
   totalBtc: number;
   totalUsd: number;
-  trades: ITrade[] | [];
+  trades: ITrade[];
+  tradeInProgress: ITrade | null;
 }
 
