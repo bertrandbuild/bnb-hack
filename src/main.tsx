@@ -7,23 +7,16 @@ import { GlobalProvider } from './context/globalContext';
 import { Toaster } from 'react-hot-toast';
 // Router
 import Router from './config/router';
-// wagmi
-import { WagmiProvider } from 'wagmi'
-import { config } from './config/wagmi'
-// Tanstack Query
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-const queryClient = new QueryClient()
-
+// wagmi / web3modal / Tanstack Query
+import { WalletProvider } from './config/wallet'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <GlobalProvider>
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-          <Router />
-          <Toaster position="top-right" />
-        </QueryClientProvider>
-      </WagmiProvider>
+      <WalletProvider>
+        <Router />
+        <Toaster position="top-right" />
+      </WalletProvider>
     </GlobalProvider>
   </React.StrictMode>,
 )
