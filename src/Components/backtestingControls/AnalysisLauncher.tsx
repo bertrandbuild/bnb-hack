@@ -19,7 +19,7 @@ const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
 
   // Retrieve the latest items from backtestingCharts based on analysisCount
   useEffect(() => {
-    const dataToAnalyze = backtestingChartes.slice(-analysisCount).reverse();
+    const dataToAnalyze = backtestingChartes.slice(-analysisCount);
     setSelectedData(dataToAnalyze);
   }, [analysisCount]);
 
