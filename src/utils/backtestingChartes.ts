@@ -1318,4 +1318,11 @@ export const backtestingChartes = [
     "/assets/images/backtesting/BTCUSD_2024-08-07_14-21-34.png",
     "/assets/images/backtesting/BTCUSD_2024-08-07_14-21-37.png",
     "/assets/images/backtesting/BTCUSD_2024-08-07_14-21-39.png",
-  ];
+    "/assets/images/backtesting/BTCUSD_2024-08-013_17-34-39.png",
+    "/assets/images/backtesting/BTCUSD_2024-08-013_17-35-08.png",
+    "/assets/images/backtesting/BTCUSD_2024-08-013_17-35-14.png",
+    "/assets/images/backtesting/BTCUSD_2024-08-013_17-35-18.png",
+    "/assets/images/backtesting/BTCUSD_2024-08-013_17-35-22.png",
+    "/assets/images/backtesting/BTCUSD_2024-08-013_17-35-24.png",
+    "/assets/images/backtesting/BTCUSD_2024-08-013_17-35-28.png",
+  ]
