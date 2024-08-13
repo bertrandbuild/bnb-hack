@@ -56,7 +56,3 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     </WagmiProvider>
   )
 }
-
-export default function ConnectButton() {
-  return <w3m-button />
-}
