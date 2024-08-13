@@ -1,7 +1,5 @@
 export interface ITradeIntent {
-  value: string;
-  assetFrom: string;
-  assetTo: string;
+  action: string;
   reason: string;
   priceBTC: number;
 }
