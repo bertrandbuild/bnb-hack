@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import AnalysisLauncher from "./AnalysisLauncher";
 
 const StartBacktestingAuto: React.FC = () => {
-  const [value, setValue] = useState(333);
+  const [value, setValue] = useState(345);
 
   // Define a conversion factor (for example, each unit of value = 2 minutes)
   const conversionFactor = 1;
@@ -70,9 +70,9 @@ const StartBacktestingAuto: React.FC = () => {
         </p>
       </div>
       <div>
-          {/* Remove analysisCount hard cord add in context value in components  */}
-          <AnalysisLauncher analysisCount={value} />
-        </div>
+        {/* Remove analysisCount hard cord add in context value in components  */}
+        <AnalysisLauncher analysisCount={value} />
+      </div>
     </div>
   );
 };
