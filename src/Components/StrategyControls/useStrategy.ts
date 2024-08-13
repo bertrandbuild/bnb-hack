@@ -2,7 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { uploadToIpfs } from "../../utils/ipfs";
 import { ChatMessage } from "../Chat/interface";
-import { IS_DEV } from "../../utils/constant";
+import { IS_DEV } from "../../config/env";
 import { ITradeIntent } from "./interface";
 import useScreenshot from "./useScreenshot";
 import useChat from "../Chat/useChat";
