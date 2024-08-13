@@ -42,7 +42,12 @@ const useStrategy = () => {
   const { takeTradingViewScreenshot, setScreenshot } = useScreenshot();
 
   // TODO: add prompt + trade history + strategy from context
-const tradeStatus = portfolio.trades.length > 0 ? "Trade in Progress" : "No Trade in Progress";
+  const tradeStatus = portfolio.tradeInProgress
+    ? "Trade in Progress"
+    : "No Trade in Progress";
+
+    console.log("TradeStatus :", tradeStatus);
+    console.log("Current tradeInProgress:", portfolio.tradeInProgress);
 
   const prompt = `
   **YOU ARE AN ASSET MANAGER**
@@ -94,7 +99,7 @@ const tradeStatus = portfolio.trades.length > 0 ? "Trade in Progress" : "No Trad
 - **Format** (maximum 300 characters):
 
 \`\`\`markdown
-ACTION: I want to swap {value} {assetFrom} to {assetTo} BTC
+ACTION: \${Action Options}
 REASON: \${Explain why you made this decision}
 BTC PRICE: \${BTC price}
 \`\`\`
@@ -116,6 +121,7 @@ BTC PRICE: \${BTC price}
   // Manage images
   const handleImages = async (urlPaths: string[]): Promise<string[]> => {
     toast.success("Images handled successfully.");
+    console.log("image du signal : ", urlPaths)
     return urlPaths; // Returning paths as they are since they are already paths
   };
 
@@ -169,7 +175,6 @@ BTC PRICE: \${BTC price}
 
     if (!tradeIntent) {
       toast.error("No valid trade intent found.");
-      setIsLoading(false);
       return;
     }
 
@@ -177,9 +182,16 @@ BTC PRICE: \${BTC price}
       // TODO: execute trade
       // await executeSwap({from: assetFrom, to: assetTo, value});
       // TODO: update context with new portfolio values
+
+      // No money to execute the trade and trad 
+      if (portfolio.totalUsd === 0 && tradeIntent.action === "BUY") return;
+
       const newPortfolio = await addTrade(tradeIntent);
+      
+      if (newPortfolio === null) return;
+
       const { currentQuoteSize, pnl, totalBtc, totalUsd } =
-        await calculatePortfolioValueAndPNL(newPortfolio);
+        await calculatePortfolioValueAndPNL(newPortfolio, tradeIntent);
       updateContext("portfolio", {
         ...newPortfolio,
         currentQuoteSize,
@@ -189,10 +201,8 @@ BTC PRICE: \${BTC price}
       });
 
       toast.success("Trade executed successfully.");
-      setIsLoading(false);
     } catch (error) {
       console.error("Error during swap process", error);
-      setIsLoading(false);
     }
   };
 
@@ -217,13 +227,14 @@ BTC PRICE: \${BTC price}
 
       if (!tradeIntent) {
         toast.error("No valid trade intent found in dev mode.");
-        setIsLoading(false);
         return;
       }
 
       const newPortfolio = await addTrade(tradeIntent);
+      if (newPortfolio === null) return;
+
       const { currentQuoteSize, pnl, totalBtc, totalUsd } =
-        await calculatePortfolioValueAndPNL(newPortfolio);
+        await calculatePortfolioValueAndPNL(newPortfolio, tradeIntent);
       updateContext("portfolio", {
         ...newPortfolio,
         currentQuoteSize,
@@ -236,14 +247,11 @@ BTC PRICE: \${BTC price}
     } catch (error) {
       console.error("Error during dev mode strategy execution:", error);
       toast.error("An error occurred in dev mode.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
   // Detect a swap intent from a llm response
   const handleIntent = (text: string): ITradeIntent | null => {
-
     const holdRegex = /HOLD|\*\*HOLD\*\*/g;
     const holdMatch = text.match(holdRegex);
 
@@ -254,30 +262,29 @@ BTC PRICE: \${BTC price}
     // MATCH the pattern : **ACTION** or **ACTION:** or ACTION: I want to swap {value} {assetFrom} to {assetTo}
     // REASON: {explanation}
     const actionRegex =
-      /(?:\*\*ACTION\*\*|ACTION:|\*\*ACTION:\*\*)\s*I want to swap\s+(\d+)\s+(\w+)\s+to\s+(\w+)\s*(?:\.\s*|\s*)(?:\n|\r\n)(?:\*\*REASON\*\*|REASON:|\*\*REASON:\*\*)\s*(.*?)(?:\.\s*|\s*$)/;
+      /(?:\*\*ACTION\*\*|ACTION:|\*\*ACTION:\*\*)\s*(BUY|SELL|HOLD)\s*(?:\n|\r\n|\r)(?:\*\*REASON\*\*|REASON:|\*\*REASON:\*\*)\s*([^\n\r]*)/i;
     const match = text.match(actionRegex);
 
-    const priceBTCRegex = /\b\d{2},\d{3}\b/g;
-    const matchPriceBTC = text.match(priceBTCRegex)
+    const priceBTCRegex = /BTC PRICE:\s*\$?\d{1,3}(?:[,.]\d{3})*(?:\.\d{2})?/i;
+    const matchPriceBTC = text.match(priceBTCRegex);
 
     if (!match || !matchPriceBTC) {
       console.error("No match found for the action regex.");
       return null;
     }
 
-    const value = match[1];
-    const assetFrom = match[2];
-    const assetTo = match[3];
-    const reason = match[4];
-    const priceBTC = matchPriceBTC[0];
+    const action = match[1];
+    const reason = match[2];
 
-    console.log("value", value);
-    console.log("assetFrom", assetFrom);
-    console.log("assetTo", assetTo);
+    // Price cleanup to remove commas and periods before converting to integers
+    let priceBTC = matchPriceBTC[0];
+    priceBTC = priceBTC.replace(/BTC PRICE:\s*\$?/, "").replace(/,/g, ""); // Remove commas and periods
+
+    console.log("value", action);
     console.log("reason", reason);
     console.log("priceBTC", priceBTC);
 
-    return { value, assetFrom, assetTo, reason, priceBTC: parseInt(priceBTC)};
+    return { action, reason, priceBTC: parseInt(priceBTC) };
   };
 
   const runStrategy = async (urlPaths?: string[]) => {
