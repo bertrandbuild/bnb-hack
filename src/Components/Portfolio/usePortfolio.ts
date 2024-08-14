@@ -4,17 +4,24 @@ import { v4 as uuid } from "uuid";
 import { IPortfolio } from "./interface";
 
 // import context
-import { useGlobalContext } from "../../context/globalContext";
+import { useGlobalContext } from "../../hooks/useGlobalContext";
+import { useState, useEffect } from "react";
 
 const usePortfolio = () => {
   const { updateContext, portfolio } = useGlobalContext();
+  const [localPortfolio, setLocalPortfolio] = useState<IPortfolio>(portfolio);
+
+  useEffect(() => {
+    setLocalPortfolio(portfolio)
+  }, [portfolio])
+
 
   const addTrade = async (
     tradeIntent: ITradeIntent
   ): Promise<IPortfolio | null> => {
-    if (!portfolio.trades) {
-      console.error("Empty portfolio.");
-      return null;
+
+    if (!localPortfolio.trades) {
+      localPortfolio.trades = [];
     }
 
     const priceBTC = tradeIntent.priceBTC;
@@ -22,6 +29,27 @@ const usePortfolio = () => {
     // Determine the action based on the asset being traded from
     const action: "Buy" | "Sell" =
       tradeIntent.action === "BUY" ? "Buy" : "Sell";
+
+    console.log("portfolio.totalUsd file : usePortfolio", localPortfolio.totalUsd)
+    console.log("action file : usePortfolio", action)
+    console.log("test", localPortfolio.totalUsd === 0 && action === "Buy")
+
+    // Check available funds for a purchase
+    if (localPortfolio.totalUsd === 0 && action === "Buy") {
+      console.warn("No USD available for purchase.");
+      return null;
+    }
+
+    // If a buy trade is in progress, allow only sell signals
+    if (localPortfolio.tradeInProgress) {
+      console.warn("Trade in progress:", localPortfolio.tradeInProgress);
+      if (localPortfolio.tradeInProgress.action === "Buy" && action === "Buy") {
+        console.warn(
+          "A BUY trade is already in progress. Cannot add another BUY trade."
+        );
+        return null;
+      }
+    }
 
     const trade: ITrade = {
       id: uuid(),
@@ -34,12 +62,14 @@ const usePortfolio = () => {
     };
 
     // Update the portfolio with the new trade
-    console.log("Trades before adding:", portfolio.trades);
+    console.log("Trades before adding:", localPortfolio.trades);
+
     const newPortfolio = {
-      ...portfolio,
-      trades: [...portfolio.trades, trade],
-      tradeInProgress: trade, 
+      ...localPortfolio,
+      trades: [...localPortfolio.trades, trade],
+      tradeInProgress: action === "Buy" ? trade : null,
     };
+
     console.log("Trades after adding:", newPortfolio.trades);
 
     await updateContext("portfolio", newPortfolio);
