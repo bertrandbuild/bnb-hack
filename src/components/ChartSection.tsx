@@ -6,7 +6,7 @@ import TradingViewWidget from "./ui/TradingViewWidget";
 import Backtesting from "./backtestingControls/Backtesting";
 
 // import context
-import { useBacktestingContext } from "../context/backtestingContext";
+import { useBacktestingContext } from "../hooks/useBacktestingContext";
 
 const ChartSection: React.FC = () => {
   const { showBacktesting } = useBacktestingContext();

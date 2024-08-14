@@ -1,4 +1,8 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState } from "react";
+import {
+  backtestingCharts,
+  backtestingChartsTest,
+} from "../utils/chartsConfig";
 
 interface BacktestResult {
   id: number;
@@ -12,23 +16,19 @@ interface BacktestingContextProps {
   showBacktesting: boolean;
   handleStartBacktesting: () => void;
   toggleBacktesting: () => void;
+  useTestChart: boolean;
+  toggleChart: () => void;
+  selectedChart: string[];
 }
 
-const BacktestingContext = createContext<BacktestingContextProps | undefined>(
-  undefined
-);
-
-export const useBacktestingContext = () => {
-  const context = useContext(BacktestingContext);
-  if (!context) {
-    throw new Error("useBacktesting must be used within a BacktestingProvider");
-  }
-  return context;
-};
+export const BacktestingContext = createContext<
+  BacktestingContextProps | undefined
+>(undefined);
 
 const BacktestingProvider = ({ children }: { children: React.ReactNode }) => {
   const [backtesting, setBacktesting] = useState<BacktestResult[]>([]);
   const [showBacktesting, setShowBacktesting] = useState(false);
+  const [useTestChart, setUseTestChart] = useState(false);
 
   const handleStartBacktesting = () => {
     setShowBacktesting(true);
@@ -38,6 +38,14 @@ const BacktestingProvider = ({ children }: { children: React.ReactNode }) => {
     setShowBacktesting((prevState) => !prevState);
   };
 
+  const toggleChart = () => {
+    setUseTestChart((prevState) => !prevState);
+  };
+
+  const selectedChart = useTestChart
+    ? backtestingChartsTest
+    : backtestingCharts;
+
   return (
     <BacktestingContext.Provider
       value={{
@@ -46,6 +54,9 @@ const BacktestingProvider = ({ children }: { children: React.ReactNode }) => {
         showBacktesting,
         handleStartBacktesting,
         toggleBacktesting,
+        useTestChart,
+        toggleChart,
+        selectedChart,
       }}
     >
       {children}

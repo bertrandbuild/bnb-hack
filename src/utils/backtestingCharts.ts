@@ -1,4 +1,4 @@
-export const backtestingChartes = [
+export const backtestingCharts = [
     "/assets/images/backtesting/BTCUSD_2024-08-07_13-29-24.png",
     "/assets/images/backtesting/BTCUSD_2024-08-07_13-29-26.png",
     "/assets/images/backtesting/BTCUSD_2024-08-07_13-29-29.png",
