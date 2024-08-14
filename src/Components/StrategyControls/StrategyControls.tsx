@@ -12,8 +12,8 @@ import useStrategy from "./useStrategy";
 import useScreenshot from "./useScreenshot";
 
 // import global context
-import { useGlobalContext } from "../../context/globalContext";
-import { useBacktestingContext } from "../../context/backtestingContext";
+import { useGlobalContext } from "../../hooks/useGlobalContext";
+import { useBacktestingContext } from "../../hooks/useBacktestingContext";
 
 
 const StrategyControls: React.FC = () => {

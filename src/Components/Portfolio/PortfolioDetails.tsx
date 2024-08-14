@@ -1,7 +1,7 @@
 import React from "react";
 
 // import globalContext
-import { useGlobalContext } from "../../context/globalContext";
+import { useGlobalContext } from "../../hooks/useGlobalContext";
 
 // import components
 import StatItem from "../ui/StatItem";

@@ -1,11 +1,11 @@
 import React from "react";
-import { strategies } from "../utils/Strategies"
+import { strategies } from "../utils/Strategies";
 // import interfaces
 import { IStrategy } from "../components/StrategyControls/interface";
 // import components
 import StrategyCard from "../components/ui/StrategyCard";
 // import global context
-import { useGlobalContext } from "../context/globalContext";
+import { useGlobalContext } from "../hooks/useGlobalContext";
 
 const OnboardingStrategy: React.FC = () => {
   const { updateContext } = useGlobalContext();
