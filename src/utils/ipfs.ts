@@ -1,6 +1,7 @@
 class IpfsUploadError extends Error {
   constructor(message: string) {
     super(message);
+    console.error(message);
     this.name = 'IpfsUploadError';
   }
 }
@@ -42,7 +43,7 @@ export const uploadToIpfs = async (blob: Blob): Promise<string> => {
       throw new IpfsUploadError(`Error during upload: ${JSON.stringify(resData.error)}`);
     }
     return resData.IpfsHash;
-  } catch (e) {
-    throw new IpfsUploadError(`Error during upload: ${e}`);
+  } catch (error) {
+    throw new IpfsUploadError(`Error during upload: ${error}`);
   }
 };

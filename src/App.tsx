@@ -9,7 +9,7 @@ function App() {
   return (
     <div className="bg-base-100 min-h-screen flex flex-col">
       <NavBar />
-      <main className="container mx-auto px-4 py-0">
+      <main className="flex-1 container mx-auto px-4 py-0">
         <Outlet />
       </main>
       <Footer />

@@ -1,72 +1,127 @@
 import { ITradeIntent } from "../StrategyControls/interface";
-import { useGlobalContext } from "../../context/globalContext";
 import { ITrade } from "./interface";
-import { v4 as uuid } from 'uuid';
-import axios from 'axios';
+import { v4 as uuid } from "uuid";
 import { IPortfolio } from "./interface";
 
+// import context
+import { useGlobalContext } from "../../hooks/useGlobalContext";
+import { useState, useEffect } from "react";
 
 const usePortfolio = () => {
   const { updateContext, portfolio } = useGlobalContext();
+  const [localPortfolio, setLocalPortfolio] = useState<IPortfolio>(portfolio);
 
-  const fetchBTCPrice = async (): Promise<number> => {
-    const defaultBTCPrice = 50000; // FIXME: move to backend because cors + save in localStorage to avoid fetching every time
-    try {
-      const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-      return response.data.bitcoin.usd;
-    } catch (error) {
-      console.error("Error fetching BTC price, using default value", error);
-      return defaultBTCPrice;
+  useEffect(() => {
+    setLocalPortfolio(portfolio)
+  }, [portfolio])
+
+
+  const addTrade = async (
+    tradeIntent: ITradeIntent
+  ): Promise<IPortfolio | null> => {
+
+    if (!localPortfolio.trades) {
+      localPortfolio.trades = [];
     }
-  }
 
-  const addTrade = async (tradeIntent: ITradeIntent) => {
-    const action = tradeIntent.assetFrom === 'USDC' ? 'Buy' : 'Sell';
-    const btcPrice = await fetchBTCPrice();
-    const btcAmount = Number(tradeIntent.value) / btcPrice;
+    const priceBTC = tradeIntent.priceBTC;
+
+    // Determine the action based on the asset being traded from
+    const action: "Buy" | "Sell" =
+      tradeIntent.action === "BUY" ? "Buy" : "Sell";
+
+    console.log("portfolio.totalUsd file : usePortfolio", localPortfolio.totalUsd)
+    console.log("action file : usePortfolio", action)
+    console.log("test", localPortfolio.totalUsd === 0 && action === "Buy")
+
+    // Check available funds for a purchase
+    if (localPortfolio.totalUsd === 0 && action === "Buy") {
+      console.warn("No USD available for purchase.");
+      return null;
+    }
+
+    // If a buy trade is in progress, allow only sell signals
+    if (localPortfolio.tradeInProgress) {
+      console.warn("Trade in progress:", localPortfolio.tradeInProgress);
+      if (localPortfolio.tradeInProgress.action === "Buy" && action === "Buy") {
+        console.warn(
+          "A BUY trade is already in progress. Cannot add another BUY trade."
+        );
+        return null;
+      }
+    }
 
     const trade: ITrade = {
       id: uuid(),
       timestamp: new Date().getTime(),
       action,
-      tokenPair: `${tradeIntent.assetFrom}${tradeIntent.assetTo}`,
+      tokenPair: "BTC/USDC",
       reason: tradeIntent.reason,
-      baseAmount: btcAmount,
-      quoteAmount: Number(tradeIntent.value),
-      price: btcPrice,
-      status: 'Completed'
-    }
-    const newPortfolio = { ...portfolio, trades: [...portfolio.trades, trade] };
-    await updateContext("portfolio", newPortfolio);
-    console.log("portfolio after add trade", newPortfolio);
-    return newPortfolio;
-  }
+      price: priceBTC,
+      status: "Completed",
+    };
 
-  const calculatePortfolioValueAndPNL = async (portfolio: IPortfolio) => {
+    // Update the portfolio with the new trade
+    console.log("Trades before adding:", localPortfolio.trades);
+
+    const newPortfolio = {
+      ...localPortfolio,
+      trades: [...localPortfolio.trades, trade],
+      tradeInProgress: action === "Buy" ? trade : null,
+    };
+
+    console.log("Trades after adding:", newPortfolio.trades);
+
+    await updateContext("portfolio", newPortfolio);
+
+    return newPortfolio;
+  };
+
+  // Calculate the total value and PNL of the portfolio based and the actual BTC price
+  const calculatePortfolioValueAndPNL = async (
+    portfolio: IPortfolio,
+    tradeIntent: ITradeIntent
+  ) => {
     const { initialQuoteSize, trades, totalBtc, totalUsd } = portfolio;
-    const btcPrice = await fetchBTCPrice();
-  
+
+    const priceBTC = tradeIntent.priceBTC;
+
+    // Initialize values with current portfolio values
     let newTotalBtc = totalBtc;
     let newTotalUsd = totalUsd;
+
     trades.forEach((trade) => {
-      if (trade.action === 'Buy') {
-        newTotalBtc += trade.baseAmount;
-        newTotalUsd -= trade.baseAmount * trade.price;
-      } else {
-        newTotalBtc -= trade.baseAmount;
-        newTotalUsd += trade.baseAmount * trade.price;
+      if (trade.action === "Buy") {
+        // Convert everything BTC
+        newTotalBtc = newTotalUsd / trade.price;
+        newTotalUsd = 0;
+      } else if (trade.action === "Sell") {
+        // Convert everything USDC
+        newTotalUsd = newTotalBtc * trade.price;
+        newTotalBtc = 0;
       }
     });
-  
-    const currentQuoteSize = newTotalUsd + (newTotalBtc * btcPrice);
-    const pnl = ((currentQuoteSize - initialQuoteSize) / initialQuoteSize) * 100;
-  
-    return { currentQuoteSize, pnl, totalBtc: newTotalBtc, totalUsd: newTotalUsd };
-  }
+
+    // Calculate the present value of the portfolio
+    const currentQuoteSize = newTotalUsd + newTotalBtc * priceBTC;
+
+    // Calculate PNL
+    const pnl =
+      initialQuoteSize !== 0
+        ? ((currentQuoteSize - initialQuoteSize) / initialQuoteSize) * 100
+        : 0;
+
+    return {
+      currentQuoteSize,
+      pnl,
+      totalBtc: newTotalBtc,
+      totalUsd: newTotalUsd,
+    };
+  };
 
   return {
     calculatePortfolioValueAndPNL,
-    addTrade
+    addTrade,
   };
 };
 
