@@ -32,7 +32,7 @@ const StrategyControls: React.FC = () => {
               <button className="btn btn-primary mb-2" onClick={runStrategy}>
                 Start the strategy
               </button>
-              <p className="text-xs text-gray-400 mt-2 text-neutral">
+              <p className="text-xs mt-2 text-neutral">
                 The strategy can't be changed after start
               </p>
             </>

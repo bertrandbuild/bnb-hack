@@ -116,7 +116,7 @@ const useStrategy = () => {
     return { value, assetFrom, assetTo, reason };
   }
 
-// Function to interpolate the string
+  // Function to interpolate the string
   const interpolate = (str: string, vars: { [key: string]: string }) => {
     for (const key in vars) {
       str = str.replace(new RegExp(`\\$\\{${key}\\}`, 'g'), vars[key]);
@@ -132,7 +132,7 @@ const useStrategy = () => {
     const result = interpolate(strategy?.description, { 
       currentQuoteSize: portfolio.currentQuoteSize.toString(), 
       totalBtc: portfolio.totalBtc.toString(), 
-      tradeStatus: "BUY" 
+      tradeStatus: "BUY" // TODO: update
     });
     setPrompt(result);
     try {

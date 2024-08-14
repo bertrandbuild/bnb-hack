@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-function TradingViewWidget() {
+const TradingViewWidget = () => {
   const container = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

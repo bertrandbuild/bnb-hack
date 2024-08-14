@@ -1,6 +1,6 @@
 import { useAccount } from "wagmi"
 
-export function ConnectButton() {
+const ConnectButton = () => {
   const { isConnected } = useAccount()
   return (
     isConnected ? (
@@ -12,3 +12,4 @@ export function ConnectButton() {
     )
   )
 }
+export default ConnectButton;
