@@ -7,7 +7,7 @@ import { IS_DEV } from "../../utils/constant";
 import { ITradeIntent } from "./interface";
 import useScreenshot from "./useScreenshot";
 import useChat from "../chat/useChat";
-import { useGlobalContext } from "../../context/globalContext";
+import { useGlobalContext } from "../../hooks//useGlobalContext";
 import usePortfolio from "../Portfolio/usePortfolio";
 
 const templateLLMResponse = `
@@ -46,8 +46,11 @@ const useStrategy = () => {
     ? "Trade in Progress"
     : "No Trade in Progress";
 
-    console.log("TradeStatus :", tradeStatus);
-    console.log("Current tradeInProgress:", portfolio.tradeInProgress);
+  console.log("TradeStatus :", tradeStatus);
+  console.log("Current tradeInProgress:", portfolio.tradeInProgress);
+  console.log("portfolio.totalUSD : ", portfolio.totalUsd)
+  console.log("portfolio.totalBtc", portfolio.totalBtc)
+  console.log("requestHash ; ", requestHash)
 
   const prompt = `
   **YOU ARE AN ASSET MANAGER**
@@ -91,7 +94,7 @@ const useStrategy = () => {
 ### CURRENT STATUS
 
 - **Action Options**: \`Buy\` | \`Sell\` | \`Hold\`
-- **Current Portfolio**: ${portfolio.currentQuoteSize} USDC | ${portfolio.totalBtc} BTC
+- **Current Portfolio**: ${portfolio.totalUsd} USDC | ${portfolio.totalBtc} BTC
 - **Trade Status**: ${tradeStatus}
 
 ### RESPONSE FORMAT
@@ -121,7 +124,7 @@ BTC PRICE: \${BTC price}
   // Manage images
   const handleImages = async (urlPaths: string[]): Promise<string[]> => {
     toast.success("Images handled successfully.");
-    console.log("image du signal : ", urlPaths)
+    console.log("image du signal : ", urlPaths);
     return urlPaths; // Returning paths as they are since they are already paths
   };
 
@@ -178,16 +181,47 @@ BTC PRICE: \${BTC price}
       return;
     }
 
-    try {
-      // TODO: execute trade
-      // await executeSwap({from: assetFrom, to: assetTo, value});
-      // TODO: update context with new portfolio values
+    // TODO: execute trade
+    // await executeSwap({from: assetFrom, to: assetTo, value});
+    // TODO: update context with new portfolio values
 
-      // No money to execute the trade and trad 
-      if (portfolio.totalUsd === 0 && tradeIntent.action === "BUY") return;
+    // If the signal is "Hold", do not change the state of `tradeInProgress`.
+    if (tradeIntent.action === "HOLD") {
+      console.log(
+        "Signal is HOLD, no trade will be executed, maintaining current trade status."
+      );
+      return; // Do not execute trade, keep `tradeInProgress` status unchanged
+    }
+
+    // Checking `tradeInProgress` before executing the trade
+    if (
+      portfolio.tradeInProgress &&
+      portfolio.tradeInProgress.action === "Buy" &&
+      tradeIntent.action === "BUY"
+    ) {
+      console.warn(
+        "A BUY trade is already in progress. New BUY trade will not be executed."
+      );
+      return; // Prevents the execution of another purchase trade
+    }
+
+    try {
+      // Checking funds before executing the trade
+      if (portfolio.tradeInProgress) {
+        console.warn("Trade in progress detected:", portfolio.tradeInProgress);
+        if (
+          portfolio.tradeInProgress.action === "Buy" &&
+          tradeIntent.action === "BUY"
+        ) {
+          console.warn(
+            "A BUY trade is already in progress. Cannot add another BUY trade."
+          );
+          return;
+        }
+      }
 
       const newPortfolio = await addTrade(tradeIntent);
-      
+
       if (newPortfolio === null) return;
 
       const { currentQuoteSize, pnl, totalBtc, totalUsd } =
@@ -294,7 +328,7 @@ BTC PRICE: \${BTC price}
       if (IS_DEV) {
         await runStrategyDev();
       } else {
-        let ipfsHashes: string[];
+        let ipfsHashes: string[] = [];
 
         if (urlPaths && urlPaths.length > 0) {
           // Use past images if provided
