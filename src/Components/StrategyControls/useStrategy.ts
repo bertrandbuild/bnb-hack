@@ -35,19 +35,9 @@ This action is based on the analysis and the bullish signals from the chart. How
 const useStrategy = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { requestHash, llmResult, setLlmResult, startChatWithImage } = useChat();
-  const { portfolio, updateContext } = useGlobalContext();
+  const { strategy, updateContext, portfolio } = useGlobalContext();
   const { addTrade, calculatePortfolioValueAndPNL } = usePortfolio();
-
-  // TODO: add prompt + trade history + strategy from context
-  const prompt = `You are an asset manager. 
-  I actually have : ${portfolio.currentQuoteSize} USDC and ${portfolio.totalBtc} BTC
-  Do a technical analysis of the chart and provide a recommendation on whether to buy, sell, or hold. 
-  If we should buy or sell, always follow this format : 
-  \`\`\`
-  ACTION: I want to swap {value} {assetFrom} to {assetTo}
-  REASON: {explanation}
-  \`\`\`
-  `;
+  const [prompt, setPrompt] = useState("");
 
   const { takeTradingViewScreenshot, setScreenshot } = useScreenshot();
 
@@ -126,7 +116,25 @@ const useStrategy = () => {
     return { value, assetFrom, assetTo, reason };
   }
 
+// Function to interpolate the string
+  const interpolate = (str: string, vars: { [key: string]: string }) => {
+    for (const key in vars) {
+      str = str.replace(new RegExp(`\\$\\{${key}\\}`, 'g'), vars[key]);
+    }
+    return str;
+  };
+
   const runStrategy = async () => {
+    if (!strategy) {
+      toast.error('No strategy found');
+      return;
+    }
+    const result = interpolate(strategy?.description, { 
+      currentQuoteSize: portfolio.currentQuoteSize.toString(), 
+      totalBtc: portfolio.totalBtc.toString(), 
+      tradeStatus: "BUY" 
+    });
+    setPrompt(result);
     try {
       setIsLoading(true);
       await (IS_DEV ? runStrategyDev() : runStrategyProd());

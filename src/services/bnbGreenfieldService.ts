@@ -3,6 +3,7 @@ import { IReturnOffChainAuthKeyPairAndUpload } from '@bnb-chain/greenfield-js-sd
 
 import { Client } from '@bnb-chain/greenfield-js-sdk';
 import { Connector } from 'wagmi';
+import { IStrategy } from '../components/StrategyControls/interface';
 
 export const client = Client.create(GRPC_URL, String(GREEN_CHAIN_ID));
 
@@ -83,10 +84,7 @@ export const getOffchainAuthKeys = async (address: string, provider: any) => {
   return offChainData;
 };
 
-export const getStrategiesFromGreenfield = async (bucketName: string, objectName: string, address: string, connector: Connector): Promise<string | null> => {
-
-  const spInfo = await selectSp();
-  console.log('spInfo', spInfo);
+export const getStrategiesFromGreenfield = async (bucketName: string, objectName: string, address: string, connector: Connector): Promise<IStrategy[] | null> => {
 
   const provider = await connector.getProvider();
   const offChainData = await getOffchainAuthKeys(address, provider);
@@ -111,9 +109,7 @@ export const getStrategiesFromGreenfield = async (bucketName: string, objectName
   }
   const blob = await res.body.arrayBuffer();
   const text = new TextDecoder().decode(blob);
-  console.log(text);
   const json = JSON.parse(text);
-  console.log(json);
 
   return json;
 };
