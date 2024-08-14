@@ -1,22 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { backtestingChartes } from "../../utils/backtestingChartes";
 import styles from "./Backtesting.module.css";
+
+// import context
+import { useBacktestingContext } from "../../hooks/useBacktestingContext";
 
 const Backtesting: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [zoom, setZoom] = useState(false);
 
+  // Select table test or prod
+  const { selectedChart, useTestChart, toggleChart } = useBacktestingContext();
+
   const handleNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? backtestingChartes.length - 1 : prevIndex - 1
-    );
+    if (selectedChart && selectedChart.length > 0) {
+      setCurrentIndex((prevIndex) =>
+        prevIndex === 0 ? selectedChart.length - 1 : prevIndex - 1
+      );
+    }
   };
   
   const handlePrevious = () => {
+    if (selectedChart && selectedChart.length > 0) {
     setCurrentIndex((prevIndex) =>
-      prevIndex === backtestingChartes.length - 1 ? 0 : prevIndex + 1
+      prevIndex === selectedChart.length - 1 ? 0 : prevIndex + 1
     );
-  };
+  }
+};
 
   const toggleZoom = () => {
     setZoom(!zoom);
@@ -44,7 +53,7 @@ const Backtesting: React.FC = () => {
     <>
       <div className="flex flex-col items-center">
         <div className="tradingview-widget-container carousel">
-          {backtestingChartes.slice().reverse().map((image, index) => (
+          {selectedChart.slice().reverse().map((image, index) => (
             <div
               key={index}
               onClick={toggleZoom}
@@ -106,6 +115,10 @@ const Backtesting: React.FC = () => {
             />
           </svg>
         </button>
+      </div>
+      <div className="btn btn-active btn-primary"
+      onClick={toggleChart}>
+          {useTestChart ? 'Switch to backtestingCharts' : 'Switch to backtestingChartTest'}
       </div>
       <div className="text-center m-4 tradingview-widget-copyright">
         <a

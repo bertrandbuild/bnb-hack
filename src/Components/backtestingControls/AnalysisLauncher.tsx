@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { backtestingChartes } from "../../utils/backtestingChartes";
 import useStrategy from "../StrategyControls/useStrategy";
+
+// import context
+import { useBacktestingContext } from "../../hooks/useBacktestingContext";
 
 // import components
 import Loading from "../ui/Loading";
@@ -13,15 +15,19 @@ interface AnalysisLauncherProps {
 const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
   analysisCount,
 }) => {
+  const { selectedChart } = useBacktestingContext();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedData, setSelectedData] = useState<string[]>([]);
   const { runStrategy, isLoading, requestHash, llmResult } = useStrategy();
 
   // Retrieve the latest items from backtestingCharts based on analysisCount
   useEffect(() => {
-    const dataToAnalyze = backtestingChartes.slice(-analysisCount);
+    const dataToAnalyze = selectedChart.slice(-analysisCount);
+
+    console.log("dataToAnalyze", dataToAnalyze);
+
     setSelectedData(dataToAnalyze);
-  }, [analysisCount]);
+  }, [analysisCount, selectedChart]);
 
   const handleStartAnalysis = async () => {
     setIsAnalyzing(true);
