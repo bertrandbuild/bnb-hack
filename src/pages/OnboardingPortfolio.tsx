@@ -22,7 +22,7 @@ const OnboardingPortfolio: React.FC = () => {
       <h1 className="text-2xl font-bold text-primary">
         Define the size of your portfolio
       </h1>
-      <p className="mb-4 text-gray-600 text-secondary">
+      <p className="mb-4 text-secondary">
         To allocate to this strategy
       </p>
       <div className="flex justify-center items-center mb-4">

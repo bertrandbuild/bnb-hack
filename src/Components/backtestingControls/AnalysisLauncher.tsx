@@ -6,7 +6,7 @@ import { useBacktestingContext } from "../../hooks/useBacktestingContext";
 
 // import components
 import Loading from "../ui/Loading";
-import Message from "../chat/Message";
+import Message from "../Chat/Message";
 
 interface AnalysisLauncherProps {
   analysisCount: number; // Number of analyses to be performed
@@ -56,7 +56,7 @@ const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
         disabled={isAnalyzing}
         className="bg-blue-500 text-white p-2 rounded"
       >
-        {isAnalyzing ? "Analysis in progress..." : "Start analysis"}
+        {isAnalyzing ? "Analysis in progress..." : "Start backtesting"}
       </button>
       {isLoading && <Loading />}
       {requestHash && (

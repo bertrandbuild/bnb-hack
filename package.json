@@ -10,7 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@bnb-chain/greenfield-js-sdk": "^2.1.1",
+    "@tanstack/react-query": "^5.51.23",
     "@types/uuid": "^10.0.0",
+    "@walletconnect/web3wallet": "^1.13.0",
+    "@web3modal/wagmi": "^5.0.11",
     "ethers": "^6.13.2",
     "lightweight-charts": "^4.2.0",
     "pinata": "^0.1.10",
@@ -21,9 +25,12 @@
     "react-markdown": "^9.0.1",
     "react-router-dom": "^6.26.0",
     "sass": "^1.77.8",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "viem": "^2.19.4",
+    "wagmi": "^2.12.5"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.14",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.2.0",

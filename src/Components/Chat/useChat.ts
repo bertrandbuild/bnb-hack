@@ -2,7 +2,7 @@ import { useState } from "react";
 import { TransactionReceipt, Contract, ethers } from "ethers";
 import { chatGptVisionABI } from "../../abis/chatgptvision";
 import { ChatMessage } from "./interface";
-import { IS_DEV } from "../../utils/constant";
+import { IS_DEV } from "../../config/env";
 
 const useChat = () => {
   const [requestHash, setRequestHash] = useState<string | null>(null);

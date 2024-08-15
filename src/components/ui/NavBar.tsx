@@ -1,11 +1,12 @@
 import React from "react";
+import ConnectButton from "./ConnectButton";
 
 const NavBar: React.FC = () => {
   return (
     <div className="navbar bg-base-100 p-0">
-      <button className="btn btn-sm btn-outline btn-secondary ml-auto mr-2">
-        Connected with 0x20...05E
-      </button>
+      <div className="ml-auto mr-2">
+        <ConnectButton  />
+      </div>
       <div className="flex items-center justify-center">
         <label className="grid cursor-pointer place-items-center p-4">
           <input

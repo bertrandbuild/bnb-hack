@@ -1,12 +1,12 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { uploadToIpfs } from "../../utils/ipfs";
+import { IS_DEV } from "../../config/env";
 import { uploadUrlToPinata } from "../../utils/pinataUpload";
-import { ChatMessage } from "../chat/interface";
-import { IS_DEV } from "../../utils/constant";
+import { ChatMessage } from "../Chat/interface";
 import { ITradeIntent } from "./interface";
 import useScreenshot from "./useScreenshot";
-import useChat from "../chat/useChat";
+import useChat from "../Chat/useChat";
 import { useGlobalContext } from "../../hooks//useGlobalContext";
 import usePortfolio from "../Portfolio/usePortfolio";
 
@@ -35,10 +35,10 @@ This action is based on the analysis and the bullish signals from the chart. How
 
 const useStrategy = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { requestHash, llmResult, setLlmResult, startChatWithImage } =
-    useChat();
-  const { portfolio, updateContext } = useGlobalContext();
+  const { requestHash, llmResult, setLlmResult, startChatWithImage } = useChat();
+  const { strategy, updateContext, portfolio } = useGlobalContext();
   const { addTrade, calculatePortfolioValueAndPNL } = usePortfolio();
+  const [prompt, setPrompt] = useState("");
   const { takeTradingViewScreenshot, setScreenshot } = useScreenshot();
 
   // TODO: add prompt + trade history + strategy from context
@@ -51,63 +51,6 @@ const useStrategy = () => {
   console.log("portfolio.totalUSD : ", portfolio.totalUsd)
   console.log("portfolio.totalBtc", portfolio.totalBtc)
   console.log("requestHash ; ", requestHash)
-
-  const prompt = `
-  **YOU ARE AN ASSET MANAGER**
-
-### STEP 1: IMAGE ANALYSIS
-
-1. **Technical Analysis**:
-    
-    - **Indicators**:
-        - **50-day Simple Moving Average (SMA)**: Orange line
-        - **200-day Exponential Moving Average (EMA)**: Green line
-2. **Identify Signals**:
-    - **Buy Signal**:
-        - **Condition**: The 50-day SMA (orange line) crosses above the 200-day EMA (green line) on the latest candlestick (rightmost candle) for daily chart readings.
-        - **Action**: Proceed to Step 2 with the BUY signal.
-    - **Sell Signal:**
-        - **Condition**: A candlestick crosses below the 200-day EMA (green line) after an initial buy signal, indicating a potential downtrend on the latest candlestick (rightmost candle) for daily charts.
-        - **Action**: Proceed to Step 2 with the SELL signal.
-    - **Otherwise**:
-        - **Action**: Return output: HOLD
-
-### STEP 2: TRADE ANALYSIS
-
-1. **Check Trade Status**:
-    - **No Trade in Progress**:
-        - **Buy Signal**:
-            - **Action**: Return response ACTION = BUY, BTC PRICE = \${BTC price}
-        - **Sell Signal**:
-            - **Action**: Return response ACTION = HOLD (since no position to sell)
-    - **Trade in Progress**:
-        - **New Buy Signal**:
-            - **Condition**: New buy signal detected.
-            - **Action**: Return response ACTION = HOLD (since a trade is already in progress)
-        - **New Sell Signal**:
-            - **Condition**: New sell signal detected.
-            - **Action**: Return response ACTION = SELL, BTC PRICE = \${BTC price}
-        - **Hold Signal**:
-            - **Condition**: No new signal detected.
-            - **Action**: Return response ACTION = HOLD
-
-### CURRENT STATUS
-
-- **Action Options**: \`Buy\` | \`Sell\` | \`Hold\`
-- **Current Portfolio**: ${portfolio.totalUsd} USDC | ${portfolio.totalBtc} BTC
-- **Trade Status**: ${tradeStatus}
-
-### RESPONSE FORMAT
-
-- **Format** (maximum 300 characters):
-
-\`\`\`markdown
-ACTION: \${Action Options}
-REASON: \${Explain why you made this decision}
-BTC PRICE: \${BTC price}
-\`\`\`
-  `;
-
   // Capture a screenshot
   const handleBlobs = async (): Promise<Blob[]> => {
     const { blob } = await takeTradingViewScreenshot();
@@ -146,9 +89,7 @@ BTC PRICE: \${BTC price}
   };
 
   // Upload images to IPFS
-  const uploadToIpfsFromImages = async (
-    urlPaths: string[]
-  ): Promise<string[]> => {
+  const uploadToIpfsFromImages = async (urlPaths: string[]): Promise<string[]> => {
     const ipfsHashes: string[] = [];
 
     for (const urlPath of urlPaths) {
@@ -321,7 +262,28 @@ BTC PRICE: \${BTC price}
     return { action, reason, priceBTC: parseInt(priceBTC) };
   };
 
+  // Function to interpolate the string
+  const interpolate = (str: string, vars: { [key: string]: string }) => {
+    for (const key in vars) {
+      str = str.replace(new RegExp(`\\$\\{${key}\\}`, 'g'), vars[key]);
+    }
+    return str;
+  };
+
   const runStrategy = async (urlPaths?: string[]) => {
+    if (!strategy) {
+      toast.error('No strategy found');
+      return;
+    }
+    const result = interpolate(strategy?.description, { 
+      currentQuoteSize: portfolio.currentQuoteSize.toString(), 
+      totalBtc: portfolio.totalBtc.toString(), 
+      tradeStatus: portfolio.tradeInProgress?.action ? "Trade in progress" : "No trade in progress"
+    });
+
+    console.log(result)
+
+    setPrompt(result);
     try {
       setIsLoading(true);
 

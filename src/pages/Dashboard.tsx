@@ -9,7 +9,8 @@ import PrivateKeyModal from "../components/PrivateKeyModal";
 import { useModal } from "../hooks/useModal";
 
 const Dashboard: React.FC = () => {
-    const { isPrivateKeyModalOpen, handleCloseModal } = useModal();
+  // TODO: remove - privateKey modal is not used in this version 
+  const { isPrivateKeyModalOpen, handleCloseModal } = useModal();
 
   const handleConnect = (privateKey: string) => {
     // TODO :

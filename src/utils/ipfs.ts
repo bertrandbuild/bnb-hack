@@ -6,6 +6,7 @@ class IpfsUploadError extends Error {
   }
 }
 
+// TODO: remove and use pinata directly
 export const uploadToIpfs = async (blob: Blob): Promise<string> => {
   if (!blob) {
     throw new IpfsUploadError("No image URL to upload");
