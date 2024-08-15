@@ -62,7 +62,7 @@ export const selectSp = async () => {
 /**
  * generate off-chain auth key pair and upload public key to sp
  */
-export const getOffchainAuthKeys = async (address: string, provider: any) => {
+export const getOffchainAuthKeys = async (address: string, provider: unknown) => {
   const storageResStr = localStorage.getItem(address);
 
   if (storageResStr) {
@@ -97,10 +97,35 @@ export const getOffchainAuthKeys = async (address: string, provider: any) => {
   return offChainData;
 };
 
+export const listAllObjectsFromBucket = async (bucketName: string, address: string, connector: Connector): Promise<IStrategy[]> => {
+  const { endpoint } = await selectSp();
+
+  const res = await client.object.listObjects({
+    bucketName,
+    endpoint
+  });
+
+  console.log(res);
+  if (!res.body) {
+    console.error('Response body is undefined');
+    throw new Error('Response body is undefined');
+  }
+
+  const strategies = await Promise.all(
+    res.body.GfSpListObjectsByBucketNameResponse.Objects.map(async (objMeta) => {
+      const name = objMeta.ObjectInfo.ObjectName;
+      console.log(name);
+      return downloadFromGreenfield(bucketName, name, address, connector);
+    })
+  );
+
+  return strategies.filter((strategy): strategy is IStrategy => strategy !== null);
+}
+
 /**
  * download from greenfield
  */
-export const downloadFromGreenfield = async (bucketName: string, objectName: string, address: string, connector: Connector): Promise<IStrategy[] | null> => {
+export const downloadFromGreenfield = async (bucketName: string, objectName: string, address: string, connector: Connector): Promise<IStrategy | null> => {
 
   const provider = await connector.getProvider();
   if (!provider) throw new Error('No provider');

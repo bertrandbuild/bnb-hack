@@ -10,7 +10,7 @@ import Loading from "./ui/Loading";
 
 interface CustomStrategyModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (strategy?: IStrategy) => void;
 }
 
 const exampleStrategy = `**YOU ARE AN ASSET MANAGER**
@@ -64,7 +64,7 @@ const CustomStrategyModal: React.FC<CustomStrategyModalProps> = ({ isOpen, onClo
   const [prompt, setPrompt] = useState(exampleStrategy);
   const [imgUrl, setImgUrl] = useState("");
   const [title, setTitle] = useState("");
-  const { chain, address, connector } = useAccount();
+  const { chain, address, connector, isConnected } = useAccount();
   const { switchChain } = useSwitchChain();
   const isOnGreenfield = chain?.id === GREEN_CHAIN_ID;
   const [isLoading, setIsLoading] = useState(false);
@@ -75,7 +75,6 @@ const CustomStrategyModal: React.FC<CustomStrategyModalProps> = ({ isOpen, onClo
     }
   }
 
-  // TODO: reload user strategies after adding a new one
   const uploadStrategy = async () => {
     setIsLoading(true);
     const strategy: IStrategy = {
@@ -90,17 +89,17 @@ const CustomStrategyModal: React.FC<CustomStrategyModalProps> = ({ isOpen, onClo
       return;
     }
     const newName = `${uuidV4()}.json`;
-    console.log(strategy, newName);
     const newFile = new File([JSON.stringify(strategy)], newName, { type: "application/json" });
     try {
-      await uploadToGreenfield(String(address), connector, { bucketName: `${BUCKET_NAME}-${title}`, objectName: newName, file: newFile });
+      await uploadToGreenfield(String(address), connector, { bucketName: BUCKET_NAME, objectName: newName, file: newFile });
       toast.success("Strategy uploaded successfully");
-      onClose();
+      onClose(strategy);
     } catch (error) {
       console.error(error);
       toast.error("Error uploading strategy");
     } finally {
       setIsLoading(false);
+      onClose();
     }
   }
 
@@ -126,10 +125,10 @@ const CustomStrategyModal: React.FC<CustomStrategyModalProps> = ({ isOpen, onClo
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-slate-900 bg-opacity-50 overflow-y-auto"
+      className="fixed inset-0 flex items-center justify-center bg-slate-900 bg-opacity-50 overflow-y-auto pt-32"
       onClick={handleOverlayClick}
     >
-      <div className="bg-base-300 p-4 rounded shadow-lg w-1/2">
+      <div className="bg-base-300 p-4 rounded shadow-lg w-1/2 mt-36 mb-8">
         <h2 className="text-xl font-bold mb-4 text-primary">Create a custom strategy</h2>
         <div className="mb-4">
           <label className="block text-sm font-medium text-slate-500 mb-2">
@@ -181,21 +180,24 @@ const CustomStrategyModal: React.FC<CustomStrategyModalProps> = ({ isOpen, onClo
             {nonEditablePrompt}
           </Markdown>
         </div>
-        <div className="flex justify-around">
-          <button onClick={onClose} className="mt-4 bg-slate-500 text-white py-2 px-4 rounded">
+        <div className="flex justify-around items-center mt-4">
+          <button onClick={() => onClose()} className="bg-slate-500 text-white py-2 px-4 rounded">
             Cancel
           </button>
-          {isOnGreenfield ? (
-            (isLoading ? ( <Loading />):(
-
-              <button onClick={uploadStrategy} className="mt-4 bg-primary text-white py-2 px-4 rounded">
-              Upload strategy
+          {!isConnected  ? (
+            <w3m-button />
+          ):(
+            isOnGreenfield ? (
+              (isLoading ? ( <Loading />):(
+                <button onClick={uploadStrategy} className="mt-4 bg-primary text-white py-2 px-4 rounded">
+                Upload strategy
+                </button>
+              ))
+            ) : (
+              <button onClick={switchToGreenfieldNetwork} className="mt-4 bg-primary text-white py-2 px-4 rounded">
+              Switch to Greenfield
               </button>
-            ))
-          ) : (
-            <button onClick={switchToGreenfieldNetwork} className="mt-4 bg-primary text-white py-2 px-4 rounded">
-            Switch to Greenfield
-            </button>
+            )
           )}
         </div>
       </div>
