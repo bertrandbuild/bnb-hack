@@ -1,14 +1,19 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { uploadToIpfs } from "../../utils/ipfs";
-import { uploadUrlToPinata } from "../../utils/pinataUpload";
-import { ChatMessage } from "../chat/interface";
-import { IS_DEV } from "../../utils/constant";
-import { ITradeIntent } from "./interface";
+import { uploadToIpfs } from "../../../utils/ipfs";
+import { uploadUrlToPinata } from "../../../utils/pinataUpload";
+import { ChatMessage } from "../../chat/interface";
+import { IS_DEV } from "../../../utils/constant";
+import { ITradeIntent } from "../interface";
+
+// import hooks
+import usePortfolio from "../../Portfolio/hooks/usePortfolio";
+import usePortfolioCalculations from "../../Portfolio/hooks/usePortfolioCalculations";
+import useChat from "../../chat/useChat";
 import useScreenshot from "./useScreenshot";
-import useChat from "../chat/useChat";
-import { useGlobalContext } from "../../hooks//useGlobalContext";
-import usePortfolio from "../Portfolio/usePortfolio";
+
+// import context
+import { useGlobalContext } from "../../../hooks/useGlobalContext";
 
 const templateLLMResponse = `
 Looking at the provided chart for Bitcoin (BTC) against USDT, it shows current data points and indicators that can guide our decision:
@@ -36,21 +41,22 @@ This action is based on the analysis and the bullish signals from the chart. How
 const useStrategy = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { requestHash, llmResult, setLlmResult, startChatWithImage } =
-    useChat();
+  useChat();
   const { portfolio, updateContext } = useGlobalContext();
-  const { addTrade, calculatePortfolioValueAndPNL } = usePortfolio();
   const { takeTradingViewScreenshot, setScreenshot } = useScreenshot();
-
+  const { calculatePortfolioAndPNL } = usePortfolioCalculations();
+  const { addTrade, lockTrade, unlockTrade } = usePortfolio();
+  
   // TODO: add prompt + trade history + strategy from context
   const tradeStatus = portfolio.tradeInProgress
-    ? "Trade in Progress"
+  ? "Trade in Progress"
     : "No Trade in Progress";
 
   console.log("TradeStatus :", tradeStatus);
   console.log("Current tradeInProgress:", portfolio.tradeInProgress);
-  console.log("portfolio.totalUSD : ", portfolio.totalUsd)
-  console.log("portfolio.totalBtc", portfolio.totalBtc)
-  console.log("requestHash ; ", requestHash)
+  console.log("portfolio.totalUSD : ", portfolio.totalUsd);
+  console.log("portfolio.totalBtc", portfolio.totalBtc);
+  console.log("requestHash ; ", requestHash);
 
   const prompt = `
   **YOU ARE AN ASSET MANAGER**
@@ -167,76 +173,31 @@ BTC PRICE: \${BTC price}
 
   // Run the strategy in production mode
   const runStrategyProd = async (ipfsHash: string): Promise<void> => {
-    const llmResponse = await startChatWithImage(ipfsHash, prompt);
-
-    setLlmResult(llmResponse);
-    toast.success("Received response from LLM.");
-
-    const tradeIntent = handleIntent(llmResponse?.content);
-
-    if (tradeIntent === null) return;
-
-    if (!tradeIntent) {
-      toast.error("No valid trade intent found.");
-      return;
-    }
-
-    // TODO: execute trade
-    // await executeSwap({from: assetFrom, to: assetTo, value});
-    // TODO: update context with new portfolio values
-
-    // If the signal is "Hold", do not change the state of `tradeInProgress`.
-    if (tradeIntent.action === "HOLD") {
-      console.log(
-        "Signal is HOLD, no trade will be executed, maintaining current trade status."
-      );
-      return; // Do not execute trade, keep `tradeInProgress` status unchanged
-    }
-
-    // Checking `tradeInProgress` before executing the trade
-    if (
-      portfolio.tradeInProgress &&
-      portfolio.tradeInProgress.action === "Buy" &&
-      tradeIntent.action === "BUY"
-    ) {
-      console.warn(
-        "A BUY trade is already in progress. New BUY trade will not be executed."
-      );
-      return; // Prevents the execution of another purchase trade
-    }
+    
+    if (!lockTrade()) return; // Lock the trade operation
 
     try {
-      // Checking funds before executing the trade
+      const llmResponse = await startChatWithImage(ipfsHash, prompt);
+      setLlmResult(llmResponse);
+      toast.success("Received response from LLM.");
+
+      const tradeIntent = handleIntent(llmResponse?.content);
+      if (tradeIntent === null || tradeIntent.action === "HOLD") return;
+
       if (portfolio.tradeInProgress) {
-        console.warn("Trade in progress detected:", portfolio.tradeInProgress);
-        if (
-          portfolio.tradeInProgress.action === "Buy" &&
-          tradeIntent.action === "BUY"
-        ) {
-          console.warn(
-            "A BUY trade is already in progress. Cannot add another BUY trade."
-          );
-          return;
-        }
+        console.warn("Trade already in progress, skipping new trade.");
+        return;
       }
 
       const newPortfolio = await addTrade(tradeIntent);
-
       if (newPortfolio === null) return;
 
-      const { currentQuoteSize, pnl, totalBtc, totalUsd } =
-        await calculatePortfolioValueAndPNL(newPortfolio, tradeIntent);
-      updateContext("portfolio", {
-        ...newPortfolio,
-        currentQuoteSize,
-        pnl,
-        totalBtc,
-        totalUsd,
-      });
-
+      console.log("Portfolio after updateContext:", newPortfolio);
       toast.success("Trade executed successfully.");
     } catch (error) {
       console.error("Error during swap process", error);
+    } finally {
+      unlockTrade(); // Ensure the lock is released after the operation
     }
   };
 
@@ -268,7 +229,7 @@ BTC PRICE: \${BTC price}
       if (newPortfolio === null) return;
 
       const { currentQuoteSize, pnl, totalBtc, totalUsd } =
-        await calculatePortfolioValueAndPNL(newPortfolio, tradeIntent);
+        await calculatePortfolioAndPNL(newPortfolio, tradeIntent);
       updateContext("portfolio", {
         ...newPortfolio,
         currentQuoteSize,
