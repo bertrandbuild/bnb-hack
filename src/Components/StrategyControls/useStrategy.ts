@@ -89,9 +89,7 @@ const useStrategy = () => {
   };
 
   // Upload images to IPFS
-  const uploadToIpfsFromImages = async (
-    urlPaths: string[]
-  ): Promise<string[]> => {
+  const uploadToIpfsFromImages = async (urlPaths: string[]): Promise<string[]> => {
     const ipfsHashes: string[] = [];
 
     for (const urlPath of urlPaths) {
@@ -280,8 +278,11 @@ const useStrategy = () => {
     const result = interpolate(strategy?.description, { 
       currentQuoteSize: portfolio.currentQuoteSize.toString(), 
       totalBtc: portfolio.totalBtc.toString(), 
-      tradeStatus: "BUY" // TODO: update
+      tradeStatus: portfolio.tradeInProgress?.action ? "Trade in progress" : "No trade in progress"
     });
+
+    console.log(result)
+
     setPrompt(result);
     try {
       setIsLoading(true);

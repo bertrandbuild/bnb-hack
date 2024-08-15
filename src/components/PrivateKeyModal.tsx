@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 
+// TODO: remove - privateKey modal is not used in this version 
 interface PrivateKeyModalProps {
   isOpen: boolean;
   onClose: () => void;

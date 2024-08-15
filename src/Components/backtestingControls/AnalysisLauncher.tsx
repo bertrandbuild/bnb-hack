@@ -56,7 +56,7 @@ const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
         disabled={isAnalyzing}
         className="bg-blue-500 text-white p-2 rounded"
       >
-        {isAnalyzing ? "Analysis in progress..." : "Start analysis"}
+        {isAnalyzing ? "Analysis in progress..." : "Start backtesting"}
       </button>
       {isLoading && <Loading />}
       {requestHash && (
