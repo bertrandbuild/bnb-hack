@@ -1,9 +1,16 @@
 import { GREEN_CHAIN_ID, GRPC_URL } from '../config/env';
-import { IReturnOffChainAuthKeyPairAndUpload } from '@bnb-chain/greenfield-js-sdk';
+import { IReturnOffChainAuthKeyPairAndUpload, OnProgressEvent, SpResponse, VisibilityType, Long } from '@bnb-chain/greenfield-js-sdk';
 
 import { Client } from '@bnb-chain/greenfield-js-sdk';
 import { Connector } from 'wagmi';
 import { IStrategy } from '../components/StrategyControls/interface';
+
+export type NodeFile = {
+  name: string;
+  type: string;
+  size: number;
+  content: Buffer;
+};
 
 export const client = Client.create(GRPC_URL, String(GREEN_CHAIN_ID));
 
@@ -14,6 +21,9 @@ export const getSps = async () => {
   return finalSps;
 };
 
+/**
+ * get all sps
+ */
 export const getAllSps = async () => {
   const sps = await getSps();
 
@@ -26,6 +36,9 @@ export const getAllSps = async () => {
   });
 };
 
+/**
+ * select a sp (storage provider)
+ */
 export const selectSp = async () => {
   const finalSps = await getSps();
 
@@ -84,9 +97,13 @@ export const getOffchainAuthKeys = async (address: string, provider: any) => {
   return offChainData;
 };
 
-export const getStrategiesFromGreenfield = async (bucketName: string, objectName: string, address: string, connector: Connector): Promise<IStrategy[] | null> => {
+/**
+ * download from greenfield
+ */
+export const downloadFromGreenfield = async (bucketName: string, objectName: string, address: string, connector: Connector): Promise<IStrategy[] | null> => {
 
   const provider = await connector.getProvider();
+  if (!provider) throw new Error('No provider');
   const offChainData = await getOffchainAuthKeys(address, provider);
   if (!offChainData) throw new Error('No offchain, please create offchain pairs first');
 
@@ -105,6 +122,7 @@ export const getStrategiesFromGreenfield = async (bucketName: string, objectName
 
   // transform blob in string and then parse it as json
   if (!res.body) {
+    console.error('Response body is undefined');
     throw new Error('Response body is undefined');
   }
   const blob = await res.body.arrayBuffer();
@@ -113,3 +131,119 @@ export const getStrategiesFromGreenfield = async (bucketName: string, objectName
 
   return json;
 };
+
+/**
+ * create a bucket and retry if it does not exist
+ */
+export const createBucket = async (address: string, connector: Connector, bucketName: string): Promise<SpResponse<null>> => {
+  if (!address) throw new Error('No address');
+  if (!bucketName) throw new Error('No bucket name');
+
+  const spInfo = await selectSp();
+
+  const provider = await connector?.getProvider();
+  const offChainData = await getOffchainAuthKeys(address, provider);
+  if (!offChainData) {
+    throw new Error('No offchain, please create offchain pairs first');
+  }
+
+  try {
+    const createBucketTx = await client.bucket.createBucket(
+      {
+        bucketName,
+        creator: address,
+        primarySpAddress: spInfo.primarySpAddress,
+        visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
+        chargedReadQuota: Long.fromString('0'),
+        paymentAddress: address,
+      },
+    );
+
+    const simulateInfo = await createBucketTx.simulate({
+      denom: 'BNB',
+    });
+
+    const res = await createBucketTx.broadcast({
+      denom: 'BNB',
+      gasLimit: Number(simulateInfo?.gasLimit),
+      gasPrice: simulateInfo?.gasPrice || '5000000000',
+      payer: address,
+      granter: '',
+    });
+
+    if (res.code === 0) {
+      return res;
+    }
+  } catch (err) {
+    console.log(typeof err)
+    if (err instanceof Error) {
+      console.error(err);
+      throw err;
+    }
+    if (err && typeof err === 'object') {
+      console.error(err);
+      throw new Error(JSON.stringify(err))
+    }
+  }
+
+  return { code: -1, message: 'Unhandled error' };
+}
+
+/**
+ * upload to greenfield
+ * create the bucket and retry if it does not exist
+ */
+export const uploadToGreenfield = async (address: string, connector: Connector, info: { bucketName: string, objectName: string, file: File | NodeFile }): Promise<SpResponse<null>> => {
+  if (!address || !info.file) {
+    throw new Error('No address or file');
+  }
+
+  const provider = await connector?.getProvider();
+  const offChainData = await getOffchainAuthKeys(address, provider);
+  if (!offChainData) {
+    throw new Error('No offchain, please create offchain pairs first');
+  }
+
+  try {
+    const res = await client.object.delegateUploadObject({
+      bucketName: info.bucketName,
+      objectName: info.objectName,
+      body: info.file,
+      delegatedOpts: {
+        visibility: VisibilityType.VISIBILITY_TYPE_PUBLIC_READ,
+      },
+      onProgress: (e: OnProgressEvent) => {
+        console.log('progress: ', e.percent);
+      },
+    }, {
+      type: 'EDDSA',
+      address: address,
+      domain: window.location.origin,
+      seed: offChainData.seedString,
+    })
+
+    if (res.code === 0) {
+      return res;
+    }
+    throw new Error(JSON.stringify(res))
+  } catch (err) {
+    let silentError = false;
+    if (err instanceof Error) {
+      // if bucket does not exist, create it and retry
+      if (err.message.includes("No such bucket")) {
+        silentError = true;
+        await createBucket(address, connector, info.bucketName).then(async () => {
+          await uploadToGreenfield(address, connector, info);
+        })
+      } else {
+        console.error(err);
+        throw err;
+      }
+    }
+    if (err && typeof err === 'object' && !silentError) {
+      console.error(err);
+      throw new Error(JSON.stringify(err))
+    }
+  }
+  return { code: -1, message: 'Unhandled error' };
+}

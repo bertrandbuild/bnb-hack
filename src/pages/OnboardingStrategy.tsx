@@ -8,12 +8,13 @@ import CustomStrategyModal from "../components/CustomStrategyModal"; // Import t
 import { useGlobalContext } from "../context/globalContext";
 import { useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
-import { getStrategiesFromGreenfield } from "../services/bnbGreenfieldService";
+import { downloadFromGreenfield } from "../services/bnbGreenfieldService";
 import toast from "react-hot-toast";
 import Loading from "../components/ui/Loading";
+import { BUCKET_NAME, OBJECT_NAME } from "../config/env";
 
-const bucketName = "test-bnb-hack";
-const objectName = 'strategies.json';
+const bucketName = BUCKET_NAME;
+const objectName = OBJECT_NAME;
 
 const OnboardingStrategy: React.FC = () => {
   const { updateContext } = useGlobalContext();
@@ -49,7 +50,7 @@ const OnboardingStrategy: React.FC = () => {
 
     try {
       if (!connector.getProvider) return; // if not provider, fail silently and wait next run
-      const strategies = await getStrategiesFromGreenfield(bucketName, objectName, address, connector);
+      const strategies = await downloadFromGreenfield(bucketName, objectName, address, connector);
       if (!strategies) return;
       setStrategies(strategies);
       setIsLoading(false);
@@ -87,7 +88,7 @@ const OnboardingStrategy: React.FC = () => {
             key={strategies.length}
             title={"Custom strategy"}
             type={"Create a custom strategy"}
-            imgUrl={"https://picsum.photos/200/300"}
+            imgUrl={"https://www.pngarts.com/files/3/Plus-Symbol-Transparent-Images.png"}
             badge={"New"}
             buttonLabel={"Create"}
             onChoose={(e) => openNewStrategyModal(e)}
