@@ -8,8 +8,8 @@ import Message from "../chat/Message";
 import PortfolioDetails from "../Portfolio/PortfolioDetails";
 
 // import Hooks
-import useStrategy from "./useStrategy";
-import useScreenshot from "./useScreenshot";
+import useStrategy from "./hooks/useStrategy";
+import useScreenshot from "./hooks/useScreenshot";
 
 // import global context
 import { useGlobalContext } from "../../hooks/useGlobalContext";

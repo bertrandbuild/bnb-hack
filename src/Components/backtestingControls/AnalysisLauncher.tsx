@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import useStrategy from "../StrategyControls/useStrategy";
+import useStrategy from "../StrategyControls/hooks/useStrategy";
 
 // import context
 import { useBacktestingContext } from "../../hooks/useBacktestingContext";
