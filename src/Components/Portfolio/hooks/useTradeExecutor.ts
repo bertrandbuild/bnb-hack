@@ -7,10 +7,19 @@ const useTradeExecutor = () => {
     portfolio: IPortfolio,
     tradeIntent: ITradeIntent
   ): Promise<IPortfolio | null> => {
-    const action: "Buy" | "Sell" =
-      tradeIntent.action === "BUY" ? "Buy" : "Sell";
-
-    console.log(`Executing trade with intent:`, tradeIntent);
+    // Map action to valid strings, or return early if invalid
+    const action: "Buy" | "Sell" | null =
+      tradeIntent.action === "BUY"
+        ? "Buy"
+        : tradeIntent.action === "SELL"
+        ? "Sell"
+        : null;
+        
+    // Early exit if action is invalid
+    if (!action) {
+      console.warn(`Invalid trade action: ${tradeIntent.action}`);
+      return null;
+    }
 
     // Check available funds for a purchase
     if (portfolio.totalUsd === 0 && action === "Buy") {
@@ -34,7 +43,7 @@ const useTradeExecutor = () => {
     const trade: ITrade = {
       id: uuid(),
       timestamp: new Date().getTime(),
-      action,
+      action: action,
       tokenPair: "BTC/USDC",
       reason: tradeIntent.reason,
       price: tradeIntent.priceBTC,
@@ -46,8 +55,6 @@ const useTradeExecutor = () => {
       trades: [...portfolio.trades, trade],
       tradeInProgress: action === "Buy" ? trade : null, // Set to null if it's a Sell action
     };
-
-    console.log(`New portfolio after trade:`, newPortfolio);
 
     return newPortfolio;
   };
