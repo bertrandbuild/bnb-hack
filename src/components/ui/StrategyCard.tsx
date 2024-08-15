@@ -1,6 +1,7 @@
 import React from "react";
 
 interface StrategyCardProps {
+  image: string;
   title: string;
   type: string;
   imgUrl: string;

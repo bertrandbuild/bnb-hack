@@ -1,12 +1,13 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { uploadToIpfs } from "../../utils/ipfs";
-import { ChatMessage } from "../Chat/interface";
 import { IS_DEV } from "../../config/env";
+import { uploadUrlToPinata } from "../../utils/pinataUpload";
+import { ChatMessage } from "../Chat/interface";
 import { ITradeIntent } from "./interface";
 import useScreenshot from "./useScreenshot";
 import useChat from "../Chat/useChat";
-import { useGlobalContext } from "../../context/globalContext";
+import { useGlobalContext } from "../../hooks//useGlobalContext";
 import usePortfolio from "../Portfolio/usePortfolio";
 
 const templateLLMResponse = `
@@ -30,7 +31,7 @@ ACTION: I want to swap 100 USDC to BTC.
 REASON: The bullish signals from the chart suggest a good opportunity to invest in BTC due to potential further price appreciation.
 
 This action is based on the analysis and the bullish signals from the chart. However, always consider your personal financial situation or consult with a financial advisor to tailor decisions to your individual investment goals and risk tolerance.
-`
+`;
 
 const useStrategy = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -38,83 +39,230 @@ const useStrategy = () => {
   const { strategy, updateContext, portfolio } = useGlobalContext();
   const { addTrade, calculatePortfolioValueAndPNL } = usePortfolio();
   const [prompt, setPrompt] = useState("");
-
   const { takeTradingViewScreenshot, setScreenshot } = useScreenshot();
 
-  const runStrategyProd = async () => {
+  // TODO: add prompt + trade history + strategy from context
+  const tradeStatus = portfolio.tradeInProgress
+    ? "Trade in Progress"
+    : "No Trade in Progress";
+
+  console.log("TradeStatus :", tradeStatus);
+  console.log("Current tradeInProgress:", portfolio.tradeInProgress);
+  console.log("portfolio.totalUSD : ", portfolio.totalUsd)
+  console.log("portfolio.totalBtc", portfolio.totalBtc)
+  console.log("requestHash ; ", requestHash)
+  // Capture a screenshot
+  const handleBlobs = async (): Promise<Blob[]> => {
     const { blob } = await takeTradingViewScreenshot();
-    const ipfsHash = await uploadToIpfs(blob);
+
+    if (!(blob instanceof Blob)) {
+      toast.error("Failed to capture screenshot.");
+      throw new Error("Expected Blob instance, got something else.");
+    }
+
+    toast.success("Screenshot captured successfully.");
+    return [blob];
+  };
+
+  // Manage images
+  const handleImages = async (urlPaths: string[]): Promise<string[]> => {
+    toast.success("Images handled successfully.");
+    console.log("image du signal : ", urlPaths);
+    return urlPaths; // Returning paths as they are since they are already paths
+  };
+
+  // Upload Blobs to IPFS
+  const uploadToIpfsFromBlobs = async (blobs: Blob[]): Promise<string[]> => {
+    const ipfsHashes: string[] = [];
+    for (const blob of blobs) {
+      try {
+        const ipfsHash = await uploadToIpfs(blob);
+        ipfsHashes.push(ipfsHash);
+        toast.success("Image uploaded to IPFS successfully.");
+      } catch (error) {
+        toast.error("Failed to upload image to IPFS.");
+        console.error("Error uploading blob to IPFS:", error);
+        throw error;
+      }
+    }
+    return ipfsHashes;
+  };
+
+  // Upload images to IPFS
+  const uploadToIpfsFromImages = async (
+    urlPaths: string[]
+  ): Promise<string[]> => {
+    const ipfsHashes: string[] = [];
+
+    for (const urlPath of urlPaths) {
+      try {
+        const ipfsHash = (await uploadUrlToPinata(urlPath)).IpfsHash;
+        ipfsHashes.push(ipfsHash);
+        toast.success(`Image ${urlPath} uploaded to IPFS successfully.`);
+      } catch (error) {
+        toast.error(`Failed to upload image ${urlPath} to IPFS.`);
+        console.error(`Error uploading image ${urlPath}:`, error);
+        throw new Error(`Upload failed for ${urlPath}`);
+      }
+    }
+    return ipfsHashes;
+  };
+
+  // Run the strategy in production mode
+  const runStrategyProd = async (ipfsHash: string): Promise<void> => {
     const llmResponse = await startChatWithImage(ipfsHash, prompt);
+
     setLlmResult(llmResponse);
+    toast.success("Received response from LLM.");
 
     const tradeIntent = handleIntent(llmResponse?.content);
 
+    if (tradeIntent === null) return;
+
     if (!tradeIntent) {
-      setIsLoading(false);
+      toast.error("No valid trade intent found.");
       return;
     }
-    const { value, assetFrom, assetTo } = tradeIntent;
+
+    // TODO: execute trade
+    // await executeSwap({from: assetFrom, to: assetTo, value});
+    // TODO: update context with new portfolio values
+
+    // If the signal is "Hold", do not change the state of `tradeInProgress`.
+    if (tradeIntent.action === "HOLD") {
+      console.log(
+        "Signal is HOLD, no trade will be executed, maintaining current trade status."
+      );
+      return; // Do not execute trade, keep `tradeInProgress` status unchanged
+    }
+
+    // Checking `tradeInProgress` before executing the trade
+    if (
+      portfolio.tradeInProgress &&
+      portfolio.tradeInProgress.action === "Buy" &&
+      tradeIntent.action === "BUY"
+    ) {
+      console.warn(
+        "A BUY trade is already in progress. New BUY trade will not be executed."
+      );
+      return; // Prevents the execution of another purchase trade
+    }
 
     try {
-      // TODO: execute trade
-      // await executeSwap({from: assetFrom, to: assetTo, value});
-      // TODO: update context with new portfolio values
-      console.log('wip: execute PROD swap : ', value, assetFrom, assetTo);
-      setIsLoading(false);
+      // Checking funds before executing the trade
+      if (portfolio.tradeInProgress) {
+        console.warn("Trade in progress detected:", portfolio.tradeInProgress);
+        if (
+          portfolio.tradeInProgress.action === "Buy" &&
+          tradeIntent.action === "BUY"
+        ) {
+          console.warn(
+            "A BUY trade is already in progress. Cannot add another BUY trade."
+          );
+          return;
+        }
+      }
+
+      const newPortfolio = await addTrade(tradeIntent);
+
+      if (newPortfolio === null) return;
+
+      const { currentQuoteSize, pnl, totalBtc, totalUsd } =
+        await calculatePortfolioValueAndPNL(newPortfolio, tradeIntent);
+      updateContext("portfolio", {
+        ...newPortfolio,
+        currentQuoteSize,
+        pnl,
+        totalBtc,
+        totalUsd,
+      });
+
+      toast.success("Trade executed successfully.");
     } catch (error) {
       console.error("Error during swap process", error);
-      toast.error("An error occurred during the swap process.");
-      setIsLoading(false);
     }
-  }
+  };
 
   // Dev mode : simulate a llm response and do not upload the image + do not execute the swap
   const runStrategyDev = async () => {
-    const { screenshotUrl } = await takeTradingViewScreenshot();
-    setScreenshot(screenshotUrl); // display image for testing, can be removed
-    
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    const llmResponse: ChatMessage = {
-      content: templateLLMResponse,
-      role: "assistant",
-      transactionHash: "0x0"
-    };
-    setLlmResult(llmResponse);
+    try {
+      const { screenshotUrl } = await takeTradingViewScreenshot();
+      setScreenshot(screenshotUrl); // display image for testing, can be removed
+      toast.success("Screenshot taken for dev mode.");
 
-    const tradeIntent = handleIntent(llmResponse?.content);
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    if (!tradeIntent) {
-      setIsLoading(false);
-      return;
+      const llmResponse: ChatMessage = {
+        content: templateLLMResponse,
+        role: "assistant",
+        transactionHash: "0x0",
+      };
+      setLlmResult(llmResponse);
+      toast.success("Simulated LLM response received.");
+
+      const tradeIntent = handleIntent(llmResponse?.content);
+
+      if (!tradeIntent) {
+        toast.error("No valid trade intent found in dev mode.");
+        return;
+      }
+
+      const newPortfolio = await addTrade(tradeIntent);
+      if (newPortfolio === null) return;
+
+      const { currentQuoteSize, pnl, totalBtc, totalUsd } =
+        await calculatePortfolioValueAndPNL(newPortfolio, tradeIntent);
+      updateContext("portfolio", {
+        ...newPortfolio,
+        currentQuoteSize,
+        pnl,
+        totalBtc,
+        totalUsd,
+      });
+
+      toast.success("Simulated trade executed successfully in dev mode.");
+    } catch (error) {
+      console.error("Error during dev mode strategy execution:", error);
+      toast.error("An error occurred in dev mode.");
     }
-
-    const newPortfolio = await addTrade(tradeIntent);
-    const { currentQuoteSize, pnl, totalBtc, totalUsd } = await calculatePortfolioValueAndPNL(newPortfolio);
-    updateContext('portfolio', { ...newPortfolio, currentQuoteSize, pnl, totalBtc, totalUsd });
-
-    toast.success("Swap completed successfully!");
-  }
+  };
 
   // Detect a swap intent from a llm response
   const handleIntent = (text: string): ITradeIntent | null => {
+    const holdRegex = /HOLD|\*\*HOLD\*\*/g;
+    const holdMatch = text.match(holdRegex);
+
+    if (holdMatch) {
+      return null;
+    }
+
     // MATCH the pattern : **ACTION** or **ACTION:** or ACTION: I want to swap {value} {assetFrom} to {assetTo}
     // REASON: {explanation}
-    const actionRegex = /(?:\*\*ACTION\*\*|ACTION:|\*\*ACTION:\*\*)\s*I want to swap\s+(\d+)\s+(\w+)\s+to\s+(\w+)\s*(?:\.\s*|\s*)(?:\n|\r\n)(?:\*\*REASON\*\*|REASON:|\*\*REASON:\*\*)\s*(.*?)(?:\.\s*|\s*$)/;
+    const actionRegex =
+      /(?:\*\*ACTION\*\*|ACTION:|\*\*ACTION:\*\*)\s*(BUY|SELL|HOLD)\s*(?:\n|\r\n|\r)(?:\*\*REASON\*\*|REASON:|\*\*REASON:\*\*)\s*([^\n\r]*)/i;
     const match = text.match(actionRegex);
-    
-    if (!match) {
+
+    const priceBTCRegex = /BTC PRICE:\s*\$?\d{1,3}(?:[,.]\d{3})*(?:\.\d{2})?/i;
+    const matchPriceBTC = text.match(priceBTCRegex);
+
+    if (!match || !matchPriceBTC) {
       console.error("No match found for the action regex.");
       return null;
     }
-    
-    const value = match[1];
-    const assetFrom = match[2];
-    const assetTo = match[3];
-    const reason = match[4];
-    
-    return { value, assetFrom, assetTo, reason };
-  }
+
+    const action = match[1];
+    const reason = match[2];
+
+    // Price cleanup to remove commas and periods before converting to integers
+    let priceBTC = matchPriceBTC[0];
+    priceBTC = priceBTC.replace(/BTC PRICE:\s*\$?/, "").replace(/,/g, ""); // Remove commas and periods
+
+    console.log("value", action);
+    console.log("reason", reason);
+    console.log("priceBTC", priceBTC);
+
+    return { action, reason, priceBTC: parseInt(priceBTC) };
+  };
 
   // Function to interpolate the string
   const interpolate = (str: string, vars: { [key: string]: string }) => {
@@ -124,7 +272,7 @@ const useStrategy = () => {
     return str;
   };
 
-  const runStrategy = async () => {
+  const runStrategy = async (urlPaths?: string[]) => {
     if (!strategy) {
       toast.error('No strategy found');
       return;
@@ -137,20 +285,45 @@ const useStrategy = () => {
     setPrompt(result);
     try {
       setIsLoading(true);
-      await (IS_DEV ? runStrategyDev() : runStrategyProd());
-      setIsLoading(false);
+
+      if (IS_DEV) {
+        await runStrategyDev();
+      } else {
+        let ipfsHashes: string[] = [];
+
+        if (urlPaths && urlPaths.length > 0) {
+          // Use past images if provided
+          const handledImages = await handleImages(urlPaths);
+          ipfsHashes = await uploadToIpfsFromImages(handledImages);
+        } else {
+          // Alternatively, take a screenshot
+          const blobs = await handleBlobs();
+          ipfsHashes = await uploadToIpfsFromBlobs(blobs);
+        }
+
+        // Ensure that at least one IPFS hash has been generated
+        if (ipfsHashes.length === 0) {
+          throw new Error("No IPFS hash was generated.");
+        }
+
+        // Run the strategy in production with the first IPFS hash
+        await runStrategyProd(ipfsHashes[0]);
+      }
     } catch (error) {
       console.error(error);
-      toast.error('An unknown error occurred');
+      toast.error("An unknown error occurred during the strategy execution.");
+      setIsLoading(false);
+    } finally {
+      toast.success("Finished running strategy.");
       setIsLoading(false);
     }
-  }
+  };
 
   return {
     isLoading,
     requestHash,
     llmResult,
-    runStrategy
+    runStrategy,
   };
 };
 

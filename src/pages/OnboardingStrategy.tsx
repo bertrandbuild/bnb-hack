@@ -5,7 +5,8 @@ import { IStrategy } from "../components/StrategyControls/interface";
 import StrategyCard from "../components/ui/StrategyCard";
 import CustomStrategyModal from "../components/CustomStrategyModal"; // Import the new modal
 // import global context
-import { useGlobalContext } from "../context/globalContext";
+import { useGlobalContext } from "../hooks/useGlobalContext";
+// other imports
 import { useNavigate } from "react-router-dom";
 import { useAccount, useSwitchChain } from "wagmi";
 import { listAllObjectsFromBucket } from "../services/bnbGreenfieldService";
@@ -121,6 +122,7 @@ const OnboardingStrategy: React.FC = () => {
           {strategies.map((strategy, index) => (
             <StrategyCard
               key={index}
+              image={strategy.imgUrl}
               title={strategy.title}
               type={strategy.type}
               imgUrl={strategy.imgUrl}

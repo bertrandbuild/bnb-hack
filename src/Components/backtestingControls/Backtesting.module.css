@@ -1,0 +1,10 @@
+.carousel-item {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .zoomed {
+    transform: scale(2.5);
+    cursor: zoom-out;
+  }

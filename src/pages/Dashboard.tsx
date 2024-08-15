@@ -9,8 +9,7 @@ import PrivateKeyModal from "../components/PrivateKeyModal";
 import { useModal } from "../hooks/useModal";
 
 const Dashboard: React.FC = () => {
-  const { isPrivateKeyModalOpen, handleOpenModal, handleCloseModal } =
-    useModal();
+    const { isPrivateKeyModalOpen, handleCloseModal } = useModal();
 
   const handleConnect = (privateKey: string) => {
     // TODO :
@@ -27,7 +26,7 @@ const Dashboard: React.FC = () => {
           {/* Left Section: Chart and Trade History */}
           <ChartSection />
           {/* Right Section: Controls and Strategy Info */}
-          <StrategyControls onOpenModal={handleOpenModal} />
+          <StrategyControls />
         </div>
       </div>
 
