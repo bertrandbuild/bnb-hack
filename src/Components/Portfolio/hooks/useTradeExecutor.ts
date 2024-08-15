@@ -10,7 +10,7 @@ const useTradeExecutor = () => {
     const action: "Buy" | "Sell" =
       tradeIntent.action === "BUY" ? "Buy" : "Sell";
 
-      console.log(`Executing trade with intent:`, tradeIntent);
+    console.log(`Executing trade with intent:`, tradeIntent);
 
     // Check available funds for a purchase
     if (portfolio.totalUsd === 0 && action === "Buy") {
@@ -26,6 +26,9 @@ const useTradeExecutor = () => {
         );
         return null;
       }
+    } else if (action === "Sell") {
+      console.warn("No trade in progress. Cannot execute SELL trade.");
+      return null;
     }
 
     const trade: ITrade = {
