@@ -6,7 +6,7 @@ import { useBacktestingContext } from "../../hooks/useBacktestingContext";
 
 // import components
 import Loading from "../ui/Loading";
-import Message from "../Chat/Message";
+import Message from "../chat/Message";
 
 interface AnalysisLauncherProps {
   analysisCount: number; // Number of analyses to be performed
