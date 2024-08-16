@@ -20,4 +20,28 @@ describe('useBacktestingContext', () => {
       });
     }).toThrow("useBacktestingContext must be used within a BacktestingProvider");
   });
+
+  it('should toggle showBacktesting when toggleBacktesting is called', () => {
+    const { result } = renderHook(() => useBacktestingContext(), {
+      wrapper: BacktestingProvider,
+    });
+  
+    // Initial state should be false
+    expect(result.current.showBacktesting).toBe(false);
+  
+    act(() => {
+      result.current.toggleBacktesting();
+    });
+  
+    // After first toggle, it should be true
+    expect(result.current.showBacktesting).toBe(true);
+  
+    act(() => {
+      result.current.toggleBacktesting();
+    });
+  
+    // After second toggle, it should be false again
+    expect(result.current.showBacktesting).toBe(false);
+  });
+  
 });
