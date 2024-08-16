@@ -15,7 +15,6 @@ import useScreenshot from "./hooks/useScreenshot";
 import { useGlobalContext } from "../../hooks/useGlobalContext";
 import { useBacktestingContext } from "../../hooks/useBacktestingContext";
 
-
 const StrategyControls: React.FC = () => {
   const { strategy } = useGlobalContext();
   const { isLoading, requestHash, llmResult, runStrategy } = useStrategy();
@@ -40,7 +39,10 @@ const StrategyControls: React.FC = () => {
               {showBacktesting ? (
                 ""
               ) : (
-                <button className="btn btn-primary mb-2" onClick={() => runStrategy()}>
+                <button
+                  className="btn btn-primary mb-2"
+                  onClick={() => runStrategy()}
+                >
                   {/* TODO Remove btn si start backtesting is true */}
                   Start the strategy on this graph
                 </button>
@@ -53,9 +55,11 @@ const StrategyControls: React.FC = () => {
           {screenshot && <img src={screenshot} alt="screenshot" />}
           {isLoading && <Loading />}
           {requestHash && (
-            <p className="text-sm mt-6 text-primary text-ellipsis overflow-hidden">
-              Request Hash: {requestHash}
-            </p>
+            <div className="flex w-full">
+              <p className="text-sm mt-6 text-primary text-ellipsis overflow-hidden">
+                Request Hash: {requestHash}
+              </p>
+            </div>
           )}
           {llmResult && <Message message={llmResult} />}
         </div>
@@ -68,9 +72,7 @@ const StrategyControls: React.FC = () => {
             className="btn btn-warning w-full"
             onClick={toggleBacktesting}
           >
-            {showBacktesting
-              ? "Close backtesting"
-              : "Open backtesting"}
+            {showBacktesting ? "Close backtesting" : "Open backtesting"}
           </button>
         </div>
       </div>
