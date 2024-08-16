@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import { IPortfolio } from "../components/Portfolio/interface";
+import { IPortfolio } from "../components/portfolio/interface";
 import { IStrategy } from "../components/StrategyControls/interface";
 import { loadAllFromLocalStorage } from "../utils/localStorage";
 

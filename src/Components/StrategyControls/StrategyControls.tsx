@@ -5,7 +5,7 @@ import { Link as RouterLink } from "react-router-dom";
 import StartBacktestingAuto from "../backtestingControls/StartBacktestingAuto";
 import Loading from "../ui/Loading";
 import Message from "../chat/Message";
-import PortfolioDetails from "../Portfolio/PortfolioDetails";
+import PortfolioDetails from "../portfolio/PortfolioDetails";
 
 // import Hooks
 import useStrategy from "./hooks/useStrategy";

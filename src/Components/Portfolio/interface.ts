@@ -23,4 +23,3 @@ export interface IPortfolio {
   trades: ITrade[];
   tradeInProgress: ITrade | null;
 }
-
