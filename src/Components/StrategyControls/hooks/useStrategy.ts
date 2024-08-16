@@ -5,14 +5,15 @@ import { uploadUrlToPinata } from "../../../utils/pinataUpload";
 import { ChatMessage } from "../../chat/interface";
 import { IS_DEV } from "../../../config/env";
 
-// import hooks
+// Import hooks
 import usePortfolio from "../../portfolio/hooks/usePortfolio";
 import usePortfolioCalculations from "../../portfolio/hooks/usePortfolioCalculations";
-import useChat from "../../chat/useChat";
 import useScreenshot from "./useScreenshot";
 import useTradeIntent from "./useTradeIntent";
+import useLlmInteraction from "./useLlmInteraction"; // Correct import
+import useChat from "../../chat/useChat"; // Re-import correct
 
-// import context
+// Import context
 import { useGlobalContext } from "../../../hooks/useGlobalContext";
 
 const templateLLMResponse = `
@@ -40,24 +41,25 @@ This action is based on the analysis and the bullish signals from the chart. How
 
 const useStrategy = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { requestHash, llmResult, setLlmResult, startChatWithImage } = useChat();
+  const { requestHash, llmResult, setLlmResult } =
+    useChat(); // Correct re-importation
   const { strategy, updateContext, portfolio } = useGlobalContext();
   const [prompt, setPrompt] = useState("");
   const { takeTradingViewScreenshot, setScreenshot } = useScreenshot();
   const { calculatePortfolioAndPNL } = usePortfolioCalculations();
   const { addTrade, lockTrade, unlockTrade } = usePortfolio();
+  const { getLlmResponse } = useLlmInteraction(); // Correct hook
   const { handleIntent } = useTradeIntent();
-  
-  // TODO: add prompt + trade history + strategy from context
+
   const tradeStatus = portfolio.tradeInProgress
-  ? "Trade in Progress"
+    ? "Trade in Progress"
     : "No Trade in Progress";
 
   console.log("TradeStatus :", tradeStatus);
   console.log("Current tradeInProgress:", portfolio.tradeInProgress);
-  console.log("portfolio.totalUSD : ", portfolio.totalUsd)
-  console.log("portfolio.totalBtc", portfolio.totalBtc)
-  console.log("requestHash ; ", requestHash)
+  console.log("portfolio.totalUSD : ", portfolio.totalUsd);
+  console.log("portfolio.totalBtc", portfolio.totalBtc);
+  console.log("requestHash ; ", requestHash);
 
   // Capture a screenshot
   const handleBlobs = async (): Promise<Blob[]> => {
@@ -76,7 +78,7 @@ const useStrategy = () => {
   const handleImages = async (urlPaths: string[]): Promise<string[]> => {
     toast.success("Images handled successfully.");
     console.log("image du signal : ", urlPaths);
-    return urlPaths; // Returning paths as they are since they are already paths
+    return urlPaths;
   };
 
   // Upload Blobs to IPFS
@@ -97,7 +99,9 @@ const useStrategy = () => {
   };
 
   // Upload images to IPFS
-  const uploadToIpfsFromImages = async (urlPaths: string[]): Promise<string[]> => {
+  const uploadToIpfsFromImages = async (
+    urlPaths: string[]
+  ): Promise<string[]> => {
     const ipfsHashes: string[] = [];
 
     for (const urlPath of urlPaths) {
@@ -116,14 +120,11 @@ const useStrategy = () => {
 
   // Run the strategy in production mode
   const runStrategyProd = async (ipfsHash: string): Promise<void> => {
-    
     if (!lockTrade()) return; // Lock the trade operation
 
     try {
-      const llmResponse = await startChatWithImage(ipfsHash, prompt);
-      setLlmResult(llmResponse);
-      toast.success("Received response from LLM.");
-
+      const llmResponse = await getLlmResponse(ipfsHash, prompt); // Use getLlmResponse
+      setLlmResult(llmResponse); // Set the result back to the state
       const tradeIntent = handleIntent(llmResponse?.content);
       if (tradeIntent === null || tradeIntent.action === "HOLD") return;
 
@@ -135,7 +136,6 @@ const useStrategy = () => {
       const newPortfolio = await addTrade(tradeIntent);
       if (newPortfolio === null) return;
 
-      console.log("Portfolio after updateContext:", newPortfolio);
       toast.success("Trade executed successfully.");
     } catch (error) {
       console.error("Error during swap process", error);
@@ -144,11 +144,11 @@ const useStrategy = () => {
     }
   };
 
-  // Dev mode : simulate a llm response and do not upload the image + do not execute the swap
+  // Dev mode: simulate a LLM response and do not upload the image + do not execute the swap
   const runStrategyDev = async () => {
     try {
       const { screenshotUrl } = await takeTradingViewScreenshot();
-      setScreenshot(screenshotUrl); // display image for testing, can be removed
+      setScreenshot(screenshotUrl); // Display image for testing, can be removed
       toast.success("Screenshot taken for dev mode.");
 
       await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -191,20 +191,22 @@ const useStrategy = () => {
   // Function to interpolate the string
   const interpolate = (str: string, vars: { [key: string]: string }) => {
     for (const key in vars) {
-      str = str.replace(new RegExp(`\\$\\{${key}\\}`, 'g'), vars[key]);
+      str = str.replace(new RegExp(`\\$\\{${key}\\}`, "g"), vars[key]);
     }
     return str;
   };
 
   const runStrategy = async (urlPaths?: string[]) => {
     if (!strategy) {
-      toast.error('No strategy found');
+      toast.error("No strategy found");
       return;
     }
-    const result = interpolate(strategy?.description, { 
-      currentQuoteSize: portfolio.currentQuoteSize.toString(), 
-      totalBtc: portfolio.totalBtc.toString(), 
-      tradeStatus: portfolio.tradeInProgress?.action ? "Trade in progress" : "No trade in progress"
+    const result = interpolate(strategy?.description, {
+      currentQuoteSize: portfolio.currentQuoteSize.toString(),
+      totalBtc: portfolio.totalBtc.toString(),
+      tradeStatus: portfolio.tradeInProgress
+        ? "Trade in progress"
+        : "No trade in progress",
     });
 
     setPrompt(result);
@@ -226,21 +228,18 @@ const useStrategy = () => {
           ipfsHashes = await uploadToIpfsFromBlobs(blobs);
         }
 
-        // Ensure that at least one IPFS hash has been generated
         if (ipfsHashes.length === 0) {
           throw new Error("No IPFS hash was generated.");
         }
 
-        // Run the strategy in production with the first IPFS hash
         await runStrategyProd(ipfsHashes[0]);
       }
     } catch (error) {
       console.error(error);
       toast.error("An unknown error occurred during the strategy execution.");
-      setIsLoading(false);
     } finally {
-      toast.success("Finished running strategy.");
       setIsLoading(false);
+      toast.success("Finished running strategy.");
     }
   };
 
