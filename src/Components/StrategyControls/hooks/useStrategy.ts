@@ -3,7 +3,6 @@ import toast from "react-hot-toast";
 import { uploadToIpfs } from "../../../utils/ipfs";
 import { uploadUrlToPinata } from "../../../utils/pinataUpload";
 import { ChatMessage } from "../../chat/interface";
-import { ITradeIntent } from "../interface";
 import { IS_DEV } from "../../../config/env";
 
 // import hooks
@@ -11,6 +10,7 @@ import usePortfolio from "../../portfolio/hooks/usePortfolio";
 import usePortfolioCalculations from "../../portfolio/hooks/usePortfolioCalculations";
 import useChat from "../../chat/useChat";
 import useScreenshot from "./useScreenshot";
+import useTradeIntent from "./useTradeIntent";
 
 // import context
 import { useGlobalContext } from "../../../hooks/useGlobalContext";
@@ -46,6 +46,7 @@ const useStrategy = () => {
   const { takeTradingViewScreenshot, setScreenshot } = useScreenshot();
   const { calculatePortfolioAndPNL } = usePortfolioCalculations();
   const { addTrade, lockTrade, unlockTrade } = usePortfolio();
+  const { handleIntent } = useTradeIntent();
   
   // TODO: add prompt + trade history + strategy from context
   const tradeStatus = portfolio.tradeInProgress
@@ -187,43 +188,6 @@ const useStrategy = () => {
     }
   };
 
-  // Detect a swap intent from a llm response
-  const handleIntent = (text: string): ITradeIntent | null => {
-    const holdRegex = /HOLD|\*\*HOLD\*\*/g;
-    const holdMatch = text.match(holdRegex);
-
-    if (holdMatch) {
-      return null;
-    }
-
-    // MATCH the pattern : **ACTION** or **ACTION:** or ACTION: I want to swap {value} {assetFrom} to {assetTo}
-    // REASON: {explanation}
-    const actionRegex =
-      /(?:\*\*ACTION\*\*|ACTION:|\*\*ACTION:\*\*)\s*(BUY|SELL|HOLD)\s*(?:\n|\r\n|\r)(?:\*\*REASON\*\*|REASON:|\*\*REASON:\*\*)\s*([^\n\r]*)/i;
-    const match = text.match(actionRegex);
-
-    const priceBTCRegex = /BTC PRICE:\s*\$?\d{1,3}(?:[,.]\d{3})*(?:\.\d{2})?/i;
-    const matchPriceBTC = text.match(priceBTCRegex);
-
-    if (!match || !matchPriceBTC) {
-      console.error("No match found for the action regex.");
-      return null;
-    }
-
-    const action = match[1];
-    const reason = match[2];
-
-    // Price cleanup to remove commas and periods before converting to integers
-    let priceBTC = matchPriceBTC[0];
-    priceBTC = priceBTC.replace(/BTC PRICE:\s*\$?/, "").replace(/,/g, ""); // Remove commas and periods
-
-    console.log("value", action);
-    console.log("reason", reason);
-    console.log("priceBTC", priceBTC);
-
-    return { action, reason, priceBTC: parseInt(priceBTC) };
-  };
-
   // Function to interpolate the string
   const interpolate = (str: string, vars: { [key: string]: string }) => {
     for (const key in vars) {
@@ -242,8 +206,6 @@ const useStrategy = () => {
       totalBtc: portfolio.totalBtc.toString(), 
       tradeStatus: portfolio.tradeInProgress?.action ? "Trade in progress" : "No trade in progress"
     });
-
-    console.log(result)
 
     setPrompt(result);
     try {
