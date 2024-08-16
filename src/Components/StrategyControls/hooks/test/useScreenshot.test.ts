@@ -42,7 +42,7 @@ describe("useScreenshot hook", () => {
     expect(global.URL.revokeObjectURL).toHaveBeenCalledWith("mockedUrl");
   });
 
-  it("Should take a screenshot and return blob and URL", async () => {
+  it("should take a screenshot and return blob and URL", async () => {
     // Mock the video element and canvas with proper types
     const mockBlob = new Blob(["test"], { type: "image/png" });
     const toBlobSpy = jest.fn((callback: (blob: Blob | null) => void) =>
@@ -54,10 +54,13 @@ describe("useScreenshot hook", () => {
     document.createElement = jest.fn().mockImplementation((element: string) => {
       if (element === "video") {
         const video = originalCreateElement.call(document, "video");
+
+        // Mock read-only properties videoWidth and videoHeight
+        Object.defineProperty(video, "videoWidth", { value: 1920 });
+        Object.defineProperty(video, "videoHeight", { value: 1080 });
+
         Object.assign(video, {
           play: jest.fn().mockResolvedValue(undefined),
-          videoWidth: 1920,
-          videoHeight: 1080,
           srcObject: {},
         });
         return video;
