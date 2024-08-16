@@ -1,4 +1,4 @@
-import useChat from "../../chat/useChat";
+import useChat from "../../chat/hooks/useChat";
 import { ChatMessage } from "../../chat/interface";
 import toast from "react-hot-toast";
 

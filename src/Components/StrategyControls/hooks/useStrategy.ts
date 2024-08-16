@@ -10,8 +10,8 @@ import usePortfolio from "../../portfolio/hooks/usePortfolio";
 import usePortfolioCalculations from "../../portfolio/hooks/usePortfolioCalculations";
 import useScreenshot from "./useScreenshot";
 import useTradeIntent from "./useTradeIntent";
-import useLlmInteraction from "./useLlmInteraction"; // Correct import
-import useChat from "../../chat/useChat"; // Re-import correct
+import useLlmInteraction from "./useLlmInteraction";
+import useChat from "../../chat/hooks/useChat";
 
 // Import context
 import { useGlobalContext } from "../../../hooks/useGlobalContext";
@@ -41,21 +41,15 @@ This action is based on the analysis and the bullish signals from the chart. How
 
 const useStrategy = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { requestHash, llmResult, setLlmResult } =
-    useChat(); // Correct re-importation
+  const { requestHash, llmResult, setLlmResult } = useChat();
   const { strategy, updateContext, portfolio } = useGlobalContext();
   const [prompt, setPrompt] = useState("");
   const { takeTradingViewScreenshot, setScreenshot } = useScreenshot();
   const { calculatePortfolioAndPNL } = usePortfolioCalculations();
   const { addTrade, lockTrade, unlockTrade } = usePortfolio();
-  const { getLlmResponse } = useLlmInteraction(); // Correct hook
+  const { getLlmResponse } = useLlmInteraction();
   const { handleIntent } = useTradeIntent();
 
-  const tradeStatus = portfolio.tradeInProgress
-    ? "Trade in Progress"
-    : "No Trade in Progress";
-
-  console.log("TradeStatus :", tradeStatus);
   console.log("Current tradeInProgress:", portfolio.tradeInProgress);
   console.log("portfolio.totalUSD : ", portfolio.totalUsd);
   console.log("portfolio.totalBtc", portfolio.totalBtc);
@@ -208,6 +202,8 @@ const useStrategy = () => {
         ? "Trade in progress"
         : "No trade in progress",
     });
+
+    console.log("interpolate", interpolate);
 
     setPrompt(result);
     try {

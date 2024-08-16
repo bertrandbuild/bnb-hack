@@ -2,14 +2,14 @@ import { renderHook, act } from "@testing-library/react";
 import useLlmInteraction from "../useLlmInteraction";
 import toast from "react-hot-toast";
 import { ChatMessage } from "../../../chat/interface";
-import useChat from "../../../chat/useChat";
+import useChat from "../../../chat/hooks/useChat";
 
 jest.mock("../../../../config/env", () => ({
   VITE_WALLET_PK: 'mocked-wallet-pk',
   VITE_OPEN_AI_VISION_CONTRACT_ADDRESS: 'mocked-contract-address',
 }));
 
-jest.mock("../../../chat/useChat");
+jest.mock("../../../chat/hooks/useChat");
 jest.mock("react-hot-toast");
 
 describe("useLlmInteraction", () => {

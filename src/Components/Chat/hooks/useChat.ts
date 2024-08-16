@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { TransactionReceipt, Contract, ethers } from "ethers";
-import { chatGptVisionABI } from "../../abis/chatgptvision";
-import { ChatMessage } from "./interface";
+import { chatGptVisionABI } from "../../../abis/chatgptvision";
+import { ChatMessage } from "../interface";
 import {
   VITE_WALLET_PK,
   VITE_OPEN_AI_VISION_CONTRACT_ADDRESS,
   IS_DEV,
-} from "../../config/env";
+} from "../../../config/env";
 
 const useChat = () => {
   const [requestHash, setRequestHash] = useState<string | null>(null);
