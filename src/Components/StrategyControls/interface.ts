@@ -6,5 +6,7 @@ export interface ITradeIntent {
 
 export interface IStrategy {
   title: string;
-  description: string;
+  imgUrl: string;
+  type: string; // a global description ie: "Conservative"
+  description: string; // the content of the strategy
 }

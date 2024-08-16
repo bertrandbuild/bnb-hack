@@ -42,7 +42,7 @@ const StrategyControls: React.FC = () => {
               ) : (
                 <button className="btn btn-primary mb-2" onClick={() => runStrategy()}>
                   {/* TODO Remove btn si start backtesting is true */}
-                  Start the strategy
+                  Start the strategy on this graph
                 </button>
               )}
               <p className="text-xs mt-2 text-neutral text-center">
@@ -69,8 +69,8 @@ const StrategyControls: React.FC = () => {
             onClick={toggleBacktesting}
           >
             {showBacktesting
-              ? "Start Analysis"
-              : "Start backtesting"}
+              ? "Close backtesting"
+              : "Open backtesting"}
           </button>
         </div>
       </div>
