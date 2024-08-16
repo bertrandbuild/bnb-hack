@@ -7,8 +7,8 @@ import { IS_DEV } from "../../../utils/constant";
 import { ITradeIntent } from "../interface";
 
 // import hooks
-import usePortfolio from "../../Portfolio/hooks/usePortfolio";
-import usePortfolioCalculations from "../../Portfolio/hooks/usePortfolioCalculations";
+import usePortfolio from "../../portfolio/hooks/usePortfolio";
+import usePortfolioCalculations from "../../portfolio/hooks/usePortfolioCalculations";
 import useChat from "../../chat/useChat";
 import useScreenshot from "./useScreenshot";
 
