@@ -1,9 +1,10 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { uploadToIpfs } from "../../../utils/ipfs";
-import { uploadUrlToPinata } from "../../../utils/pinataUpload";
 import { ChatMessage } from "../../chat/interface";
 import { IS_DEV } from "../../../config/env";
+
+// Import Services
+import useIpfsService from "../services/useIpfsService";
 
 // Import hooks
 import usePortfolio from "../../portfolio/hooks/usePortfolio";
@@ -40,15 +41,16 @@ This action is based on the analysis and the bullish signals from the chart. How
 `;
 
 const useStrategy = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { requestHash, llmResult, setLlmResult } = useChat();
-  const { strategy, updateContext, portfolio } = useGlobalContext();
-  const [prompt, setPrompt] = useState("");
+  const { uploadToIpfsFromBlobs, uploadToIpfsFromImages } = useIpfsService();
   const { takeTradingViewScreenshot, setScreenshot } = useScreenshot();
+  const { strategy, updateContext, portfolio } = useGlobalContext();
   const { calculatePortfolioAndPNL } = usePortfolioCalculations();
   const { addTrade, lockTrade, unlockTrade } = usePortfolio();
+  const { requestHash, llmResult, setLlmResult } = useChat();
+  const [isLoading, setIsLoading] = useState(false);
   const { getLlmResponse } = useLlmInteraction();
   const { handleIntent } = useTradeIntent();
+  const [prompt, setPrompt] = useState("");
 
   console.log("Current tradeInProgress:", portfolio.tradeInProgress);
   console.log("portfolio.totalUSD : ", portfolio.totalUsd);
@@ -73,43 +75,6 @@ const useStrategy = () => {
     toast.success("Images handled successfully.");
     console.log("image du signal : ", urlPaths);
     return urlPaths;
-  };
-
-  // Upload Blobs to IPFS
-  const uploadToIpfsFromBlobs = async (blobs: Blob[]): Promise<string[]> => {
-    const ipfsHashes: string[] = [];
-    for (const blob of blobs) {
-      try {
-        const ipfsHash = await uploadToIpfs(blob);
-        ipfsHashes.push(ipfsHash);
-        toast.success("Image uploaded to IPFS successfully.");
-      } catch (error) {
-        toast.error("Failed to upload image to IPFS.");
-        console.error("Error uploading blob to IPFS:", error);
-        throw error;
-      }
-    }
-    return ipfsHashes;
-  };
-
-  // Upload images to IPFS
-  const uploadToIpfsFromImages = async (
-    urlPaths: string[]
-  ): Promise<string[]> => {
-    const ipfsHashes: string[] = [];
-
-    for (const urlPath of urlPaths) {
-      try {
-        const ipfsHash = (await uploadUrlToPinata(urlPath)).IpfsHash;
-        ipfsHashes.push(ipfsHash);
-        toast.success(`Image ${urlPath} uploaded to IPFS successfully.`);
-      } catch (error) {
-        toast.error(`Failed to upload image ${urlPath} to IPFS.`);
-        console.error(`Error uploading image ${urlPath}:`, error);
-        throw new Error(`Upload failed for ${urlPath}`);
-      }
-    }
-    return ipfsHashes;
   };
 
   // Run the strategy in production mode
