@@ -50,7 +50,6 @@ const useStrategy = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { getLlmResponse } = useLlmInteraction();
   const { handleIntent } = useTradeIntent();
-  const [prompt, setPrompt] = useState("");
 
   console.log("Current tradeInProgress:", portfolio.tradeInProgress);
   console.log("portfolio.totalUSD : ", portfolio.totalUsd);
@@ -78,7 +77,7 @@ const useStrategy = () => {
   };
 
   // Run the strategy in production mode
-  const runStrategyProd = async (ipfsHash: string): Promise<void> => {
+  const runStrategyProd = async (ipfsHash: string, prompt: string): Promise<void> => {
     if (!lockTrade()) return; // Lock the trade operation
 
     try {
@@ -160,7 +159,7 @@ const useStrategy = () => {
       toast.error("No strategy found");
       return;
     }
-    const result = interpolate(strategy?.description, {
+    const prompt = interpolate(strategy?.description, {
       currentQuoteSize: portfolio.currentQuoteSize.toString(),
       totalBtc: portfolio.totalBtc.toString(),
       tradeStatus: portfolio.tradeInProgress
@@ -168,9 +167,6 @@ const useStrategy = () => {
         : "No trade in progress",
     });
 
-    console.log("interpolate", interpolate);
-
-    setPrompt(result);
     try {
       setIsLoading(true);
 
@@ -193,7 +189,7 @@ const useStrategy = () => {
           throw new Error("No IPFS hash was generated.");
         }
 
-        await runStrategyProd(ipfsHashes[0]);
+        await runStrategyProd(ipfsHashes[0], prompt);
       }
     } catch (error) {
       console.error(error);
