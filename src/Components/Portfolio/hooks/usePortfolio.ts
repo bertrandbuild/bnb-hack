@@ -21,9 +21,10 @@ const usePortfolio = () => {
   const addTrade = async (
     tradeIntent: ITradeIntent
   ): Promise<IPortfolio | null> => {
-    if (!lockTrade()) {
-      return null;
-    }
+    // FIXME: this prevent buy even without trade in progress + need to find a better name
+    // if (!lockTrade()) {
+    //   return null;
+    // }
 
     try {
       const newPortfolio = await executeTrade(portfolio, tradeIntent);
