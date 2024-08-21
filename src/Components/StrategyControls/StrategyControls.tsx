@@ -43,7 +43,7 @@ const StrategyControls: React.FC = () => {
                   className="btn btn-primary mb-2"
                   onClick={() => runStrategy()}
                 >
-                  {/* TODO Remove btn si start backtesting is true */}
+                  {/* TODO Remove btn if start backtesting is true */}
                   Start the strategy on this graph
                 </button>
               )}
@@ -72,7 +72,7 @@ const StrategyControls: React.FC = () => {
             className="btn btn-warning w-full"
             onClick={toggleBacktesting}
           >
-            {showBacktesting ? "Close backtesting" : "Open backtesting"}
+            {showBacktesting ? "Close backtesting panel" : "Switch to backtesting panel"}
           </button>
         </div>
       </div>

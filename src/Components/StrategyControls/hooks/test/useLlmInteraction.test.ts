@@ -62,7 +62,7 @@ describe("useLlmInteraction", () => {
     );
     expect(setLlmResultMock).toHaveBeenCalledWith(mockResponse);
     expect(response).toEqual(mockResponse);
-    expect(toast.success).toHaveBeenCalledWith("Received response from LLM"); // Suppression du point final
+    expect(toast.success).toHaveBeenCalledWith("Received response from LLM");
   });
 
   it("Should handle errors when LLM response fails", async () => {

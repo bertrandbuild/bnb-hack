@@ -69,14 +69,8 @@ const useStrategy = () => {
     return [blob];
   };
 
-  // Manage images
-  const handleImages = async (urlPaths: string[]): Promise<string[]> => {
-    toast.success("Images handled successfully.");
-    console.log("image du signal : ", urlPaths);
-    return urlPaths;
-  };
-
   // Run the strategy in production mode
+  // TODO: add the swap when not in backtesting mode
   const runStrategyProd = async (ipfsHash: string, prompt: string): Promise<void> => {
     if (!lockTrade()) return; // Lock the trade operation
 
@@ -147,6 +141,7 @@ const useStrategy = () => {
   };
 
   // Function to interpolate the string
+  // ie: replace the ${vars} with the actual value
   const interpolate = (str: string, vars: { [key: string]: string }) => {
     for (const key in vars) {
       str = str.replace(new RegExp(`\\$\\{${key}\\}`, "g"), vars[key]);
@@ -160,7 +155,7 @@ const useStrategy = () => {
       return;
     }
     const prompt = interpolate(strategy?.description, {
-      currentQuoteSize: portfolio.currentQuoteSize.toString(),
+      totalUsd: portfolio.totalUsd.toString(),
       totalBtc: portfolio.totalBtc.toString(),
       tradeStatus: portfolio.tradeInProgress
         ? "Trade in progress"
@@ -177,8 +172,7 @@ const useStrategy = () => {
 
         if (urlPaths && urlPaths.length > 0) {
           // Use past images if provided
-          const handledImages = await handleImages(urlPaths);
-          ipfsHashes = await uploadToIpfsFromImages(handledImages);
+          ipfsHashes = await uploadToIpfsFromImages(urlPaths);
         } else {
           // Alternatively, take a screenshot
           const blobs = await handleBlobs();
