@@ -20,6 +20,30 @@ describe("useTradeIntent hook", () => {
       priceBTC: 35000,
     });
   });
+  
+  it("Should return correct trade intent for BUY action without markdown notation ('**')", () => {
+    const { result } = renderHook(() => useTradeIntent());
+    const text =
+      "ACTION: BUY\nREASON: Bullish trend\nBTC PRICE: $35,000";
+    const intent = result.current.handleIntent(text);
+    expect(intent).toEqual({
+      action: "BUY",
+      reason: "Bullish trend",
+      priceBTC: 35000,
+    });
+  });
+  
+  it("Should return correct trade intent for BUY action with double new line", () => {
+    const { result } = renderHook(() => useTradeIntent());
+    const text =
+      "**ACTION:** BUY\n\n**REASON:** Bullish trend\n\nBTC PRICE: $35,000";
+    const intent = result.current.handleIntent(text);
+    expect(intent).toEqual({
+      action: "BUY",
+      reason: "Bullish trend",
+      priceBTC: 35000,
+    });
+  });
 
   it("Should return correct trade intent for SELL action", () => {
     const { result } = renderHook(() => useTradeIntent());
@@ -39,6 +63,19 @@ describe("useTradeIntent hook", () => {
 
     const text =
       "**ACTION:** BUY\n**REASON:** Bullish trend\nBTC PRICE: $45,000.00";
+    const intent = result.current.handleIntent(text);
+    expect(intent).toEqual({
+      action: "BUY",
+      reason: "Bullish trend",
+      priceBTC: 45000,
+    });
+  });
+
+  it("Should correctly parse BTC price with commas and periods with new line", () => {
+    const { result } = renderHook(() => useTradeIntent());
+
+    const text =
+      "**ACTION:** BUY\n**REASON:** Bullish trend\nBTC PRICE: $45,000.00\n";
     const intent = result.current.handleIntent(text);
     expect(intent).toEqual({
       action: "BUY",

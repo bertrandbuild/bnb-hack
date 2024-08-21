@@ -105,7 +105,7 @@ describe("usePortfolio", () => {
     });
   });
 
-  it("Should handle an empty portfolio without errors", async () => {
+  it("Should add a trade to an empty portfolio without errors", async () => {
     const { result } = renderHook(() => usePortfolio());
 
     const tradeIntent: ITradeIntent = {
