@@ -19,6 +19,7 @@ const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedData, setSelectedData] = useState<string[]>([]);
   const { runStrategy, isLoading, requestHash, llmResult } = useStrategy();
+  const [currentAnalysisIndex, setCurrentAnalysisIndex] = useState(0);
 
   // Retrieve the latest items from backtestingCharts based on analysisCount
   useEffect(() => {
@@ -29,35 +30,47 @@ const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
     setSelectedData(dataToAnalyze);
   }, [analysisCount, selectedChart]);
 
-  const handleStartAnalysis = async () => {
-    setIsAnalyzing(true);
+  useEffect(() => {
+    if (isAnalyzing && currentAnalysisIndex < analysisCount) {
+      const runNextAnalysis = async () => {
+        try {
+          await runStrategy([selectedData[currentAnalysisIndex]]);
+          setCurrentAnalysisIndex(prev => prev + 1);
+        } catch (error) {
+          console.error(`Error during analysis ${currentAnalysisIndex + 1}:`, error);
+          setIsAnalyzing(false);
+        }
+      };
 
-    for (let i = 0; i < analysisCount; i++) {
-      try {
-        await runStrategy([selectedData[i]]);
-      } catch (error) {
-        console.error(`Error during analysis ${i + 1}:`, error);
-        break; // Stop further analysis if an error occurs
-      }
+      runNextAnalysis();
+    } else if (currentAnalysisIndex >= analysisCount) {
+      setIsAnalyzing(false);
+      setCurrentAnalysisIndex(0);
     }
-
-    setIsAnalyzing(false);
-  };
+  }, [isAnalyzing, currentAnalysisIndex]);
 
   return (
-    <div>
-      <h2 className="text-lg font-bold mb-4 text-neutral">Start analysis</h2>
-      <p className="text-lg mb-4 text-neutral">
-        Number of analyses to be performed:{" "}
-        <strong className="text-blue-500">{analysisCount}</strong>
-      </p>
-      <button
-        onClick={handleStartAnalysis}
-        disabled={isAnalyzing}
-        className="bg-blue-500 text-white p-2 rounded"
-      >
-        {isAnalyzing ? "Analysis in progress..." : "Start backtesting"}
-      </button>
+    <div className="flex justify-center items-center flex-col mt-4">
+      {!isAnalyzing ? (
+        <button
+          onClick={isAnalyzing ? () => setIsAnalyzing(false) : () => setIsAnalyzing(true)}
+          className="btn btn-primary rounded mx-auto mb-2"
+        >
+          {isAnalyzing ? "Resume backtesting" : "Start backtesting"}
+        </button>
+      ) : (
+        <button
+          onClick={() => setIsAnalyzing(false)}
+          className="btn btn-secondary rounded mx-auto mb-2"
+        >
+          Pause analysis
+        </button>
+      )}
+      {isAnalyzing && (
+        <p className="text-sm mt-2">
+          Analyzing: {currentAnalysisIndex + 1} / {analysisCount}
+        </p>
+      )}
       {isLoading && <Loading />}
       {requestHash && (
         <p className="text-sm mt-6 text-primary text-ellipsis overflow-hidden">
