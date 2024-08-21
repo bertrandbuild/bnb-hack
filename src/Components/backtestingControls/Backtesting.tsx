@@ -31,6 +31,11 @@ const Backtesting: React.FC = () => {
     setZoom(!zoom);
   };
 
+  const handleToggleChart = () => {
+    setCurrentIndex(0);
+    toggleChart();
+  };
+
   // useEffect to manage keyboard-related board effects `shift + right or shift + left`.
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -117,7 +122,7 @@ const Backtesting: React.FC = () => {
         </button>
       </div>
       <div className="btn btn-active btn-primary"
-      onClick={toggleChart}>
+      onClick={handleToggleChart}>
           {useTestChart ? 'Switch to backtestingCharts' : 'Switch to backtestingChartTest'}
       </div>
       <div className="text-center m-4 tradingview-widget-copyright">
