@@ -24,7 +24,7 @@ const TradingViewWidget = () => {
         "allow_symbol_change": true,
         "save_image": false,
         "studies": [
-        "RSI@tv-basicstudies"
+        "MACD@tv-basicstudies"
         ],
         "show_popup_button": true,
         "popup_width": "1000",
