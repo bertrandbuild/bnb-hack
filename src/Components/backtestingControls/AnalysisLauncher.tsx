@@ -67,7 +67,7 @@ const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
         </button>
       )}
       {isAnalyzing && (
-        <p className="text-sm mt-2">
+        <p className="text-sm mt-2 text-primary">
           Analyzing: {currentAnalysisIndex + 1} / {analysisCount}
         </p>
       )}
