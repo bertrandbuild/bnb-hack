@@ -19,11 +19,11 @@ const PortfolioDetails: React.FC = () => {
           value={`${currentQuoteSize ? currentQuoteSize.toFixed(2) : "0.00"} USDC`}
         />
         {pnl !== null && pnl !== undefined && (
-          <StatItem title="% PNL" value={pnl.toFixed(1)} />
+          <StatItem title="PNL" value={`${pnl.toFixed(1)}%`} />
         )}
         <StatItem
           title="Value Portfolio"
-          value={`${portfolio.totalUsd} USD - ${portfolio.totalBtc.toFixed(5)} BTC`}
+          value={`${portfolio.totalUsd.toFixed(2)} USD - ${portfolio.totalBtc.toFixed(5)} BTC`}
         />
       </div>
     </div>
