@@ -15,7 +15,7 @@ interface AnalysisLauncherProps {
 const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
   analysisCount,
 }) => {
-  const { selectedChart } = useBacktestingContext();
+  const { selectedChart, setCurrentIndex } = useBacktestingContext();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedData, setSelectedData] = useState<string[]>([]);
   const { runStrategy, isLoading, requestHash, llmResult } = useStrategy();
@@ -24,9 +24,6 @@ const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
   // Retrieve the latest items from backtestingCharts based on analysisCount
   useEffect(() => {
     const dataToAnalyze = selectedChart.slice(-analysisCount);
-
-    console.log("dataToAnalyze", dataToAnalyze);
-
     setSelectedData(dataToAnalyze);
   }, [analysisCount, selectedChart]);
 
@@ -35,9 +32,16 @@ const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
       const runNextAnalysis = async () => {
         try {
           await runStrategy([selectedData[currentAnalysisIndex]]);
-          setCurrentAnalysisIndex(prev => prev + 1);
+          setCurrentAnalysisIndex((prev) => {
+            const newIndex = prev + 1;
+            setCurrentIndex(newIndex);
+            return newIndex;
+          });
         } catch (error) {
-          console.error(`Error during analysis ${currentAnalysisIndex + 1}:`, error);
+          console.error(
+            `Error during analysis ${currentAnalysisIndex + 1}:`,
+            error
+          );
           setIsAnalyzing(false);
         }
       };
@@ -47,25 +51,18 @@ const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
       setIsAnalyzing(false);
       setCurrentAnalysisIndex(0);
     }
-  }, [isAnalyzing, currentAnalysisIndex]);
+  }, [isAnalyzing, currentAnalysisIndex, selectedData, setCurrentIndex]);
 
   return (
     <div className="flex justify-center items-center flex-col mt-4">
-      {!isAnalyzing ? (
-        <button
-          onClick={isAnalyzing ? () => setIsAnalyzing(false) : () => setIsAnalyzing(true)}
-          className="btn btn-primary rounded mx-auto mb-2"
-        >
-          {isAnalyzing ? "Resume backtesting" : "Start backtesting"}
-        </button>
-      ) : (
-        <button
-          onClick={() => setIsAnalyzing(false)}
-          className="btn btn-secondary rounded mx-auto mb-2"
-        >
-          Pause analysis
-        </button>
-      )}
+      <button
+        onClick={() => setIsAnalyzing(!isAnalyzing)}
+        className={`btn ${
+          isAnalyzing ? "btn-secondary" : "btn-primary"
+        } rounded mx-auto mb-2`}
+      >
+        {isAnalyzing ? "Resume analysis" : "Start backtesting"}
+      </button>
       {isAnalyzing && (
         <p className="text-sm mt-2 text-primary">
           Analyzing: {currentAnalysisIndex + 1} / {analysisCount}
