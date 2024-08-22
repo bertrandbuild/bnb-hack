@@ -45,7 +45,7 @@ const useStrategy = () => {
   const { takeTradingViewScreenshot, setScreenshot } = useScreenshot();
   const { strategy, updateContext, portfolio } = useGlobalContext();
   const { calculatePortfolioAndPNL } = usePortfolioCalculations();
-  const { addTrade, lockTrade, unlockTrade } = usePortfolio();
+  const { addTrade, unlockTrade } = usePortfolio();
   const { requestHash, llmResult, setLlmResult } = useChat();
   const [isLoading, setIsLoading] = useState(false);
   const { getLlmResponse } = useLlmInteraction();
