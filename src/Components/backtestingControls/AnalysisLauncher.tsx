@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import useStrategy from "../StrategyControls/useStrategy";
+import useStrategy from "../StrategyControls/hooks/useStrategy";
 
 // import context
 import { useBacktestingContext } from "../../hooks/useBacktestingContext";
 
 // import components
 import Loading from "../ui/Loading";
-import Message from "../Chat/Message";
+import Message from "../chat/Message";
 
 interface AnalysisLauncherProps {
   analysisCount: number; // Number of analyses to be performed
@@ -15,49 +15,59 @@ interface AnalysisLauncherProps {
 const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
   analysisCount,
 }) => {
-  const { selectedChart } = useBacktestingContext();
+  const { selectedChart, setCurrentIndex } = useBacktestingContext();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedData, setSelectedData] = useState<string[]>([]);
   const { runStrategy, isLoading, requestHash, llmResult } = useStrategy();
+  const [currentAnalysisIndex, setCurrentAnalysisIndex] = useState(0);
 
   // Retrieve the latest items from backtestingCharts based on analysisCount
   useEffect(() => {
     const dataToAnalyze = selectedChart.slice(-analysisCount);
-
-    console.log("dataToAnalyze", dataToAnalyze);
-
     setSelectedData(dataToAnalyze);
   }, [analysisCount, selectedChart]);
 
-  const handleStartAnalysis = async () => {
-    setIsAnalyzing(true);
+  useEffect(() => {
+    if (isAnalyzing && currentAnalysisIndex < analysisCount) {
+      const runNextAnalysis = async () => {
+        try {
+          await runStrategy([selectedData[currentAnalysisIndex]]);
+          setCurrentAnalysisIndex((prev) => {
+            const newIndex = prev + 1;
+            setCurrentIndex(newIndex);
+            return newIndex;
+          });
+        } catch (error) {
+          console.error(
+            `Error during analysis ${currentAnalysisIndex + 1}:`,
+            error
+          );
+          setIsAnalyzing(false);
+        }
+      };
 
-    for (let i = 0; i < analysisCount; i++) {
-      try {
-        await runStrategy([selectedData[i]]);
-      } catch (error) {
-        console.error(`Error during analysis ${i + 1}:`, error);
-        break; // Stop further analysis if an error occurs
-      }
+      runNextAnalysis();
+    } else if (currentAnalysisIndex >= analysisCount) {
+      setIsAnalyzing(false);
+      setCurrentAnalysisIndex(0);
     }
-
-    setIsAnalyzing(false);
-  };
+  }, [isAnalyzing, currentAnalysisIndex, selectedData, setCurrentIndex]);
 
   return (
-    <div>
-      <h2 className="text-lg font-bold mb-4 text-neutral">Start analysis</h2>
-      <p className="text-lg mb-4 text-neutral">
-        Number of analyses to be performed:{" "}
-        <strong className="text-blue-500">{analysisCount}</strong>
-      </p>
+    <div className="flex justify-center items-center flex-col mt-4">
       <button
-        onClick={handleStartAnalysis}
-        disabled={isAnalyzing}
-        className="bg-blue-500 text-white p-2 rounded"
+        onClick={() => setIsAnalyzing(!isAnalyzing)}
+        className={`btn ${
+          isAnalyzing ? "btn-secondary" : "btn-primary"
+        } rounded mx-auto mb-2`}
       >
-        {isAnalyzing ? "Analysis in progress..." : "Start backtesting"}
+        {isAnalyzing ? "Resume analysis" : "Start backtesting"}
       </button>
+      {isAnalyzing && (
+        <p className="text-sm mt-2 text-primary">
+          Analyzing: {currentAnalysisIndex + 1} / {analysisCount}
+        </p>
+      )}
       {isLoading && <Loading />}
       {requestHash && (
         <p className="text-sm mt-6 text-primary text-ellipsis overflow-hidden">

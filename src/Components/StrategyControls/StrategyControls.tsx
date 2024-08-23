@@ -4,17 +4,16 @@ import { Link as RouterLink } from "react-router-dom";
 // import components
 import StartBacktestingAuto from "../backtestingControls/StartBacktestingAuto";
 import Loading from "../ui/Loading";
-import Message from "../Chat/Message";
-import PortfolioDetails from "../Portfolio/PortfolioDetails";
+import Message from "../chat/Message";
+import PortfolioDetails from "../portfolio/PortfolioDetails";
 
 // import Hooks
-import useStrategy from "./useStrategy";
-import useScreenshot from "./useScreenshot";
+import useStrategy from "./hooks/useStrategy";
+import useScreenshot from "./hooks/useScreenshot";
 
 // import global context
 import { useGlobalContext } from "../../hooks/useGlobalContext";
 import { useBacktestingContext } from "../../hooks/useBacktestingContext";
-
 
 const StrategyControls: React.FC = () => {
   const { strategy } = useGlobalContext();
@@ -40,8 +39,11 @@ const StrategyControls: React.FC = () => {
               {showBacktesting ? (
                 ""
               ) : (
-                <button className="btn btn-primary mb-2" onClick={() => runStrategy()}>
-                  {/* TODO Remove btn si start backtesting is true */}
+                <button
+                  className="btn btn-primary mb-2"
+                  onClick={() => runStrategy()}
+                >
+                  {/* TODO Remove btn if start backtesting is true */}
                   Start the strategy on this graph
                 </button>
               )}
@@ -53,9 +55,11 @@ const StrategyControls: React.FC = () => {
           {screenshot && <img src={screenshot} alt="screenshot" />}
           {isLoading && <Loading />}
           {requestHash && (
-            <p className="text-sm mt-6 text-primary text-ellipsis overflow-hidden">
-              Request Hash: {requestHash}
-            </p>
+            <div className="flex w-full">
+              <p className="text-sm mt-6 text-primary text-ellipsis overflow-hidden">
+                Request Hash: {requestHash}
+              </p>
+            </div>
           )}
           {llmResult && <Message message={llmResult} />}
         </div>
@@ -68,9 +72,7 @@ const StrategyControls: React.FC = () => {
             className="btn btn-warning w-full"
             onClick={toggleBacktesting}
           >
-            {showBacktesting
-              ? "Close backtesting"
-              : "Open backtesting"}
+            {showBacktesting ? "Close backtesting panel" : "Switch to backtesting panel"}
           </button>
         </div>
       </div>

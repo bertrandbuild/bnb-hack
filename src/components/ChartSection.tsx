@@ -1,7 +1,7 @@
 import React from "react";
 
 // import components
-import TradeHistory from "./Portfolio/TradeHistory";
+import TradeHistory from "./portfolio/TradeHistory";
 import TradingViewWidget from "./ui/TradingViewWidget";
 import Backtesting from "./backtestingControls/Backtesting";
 

@@ -19,6 +19,8 @@ interface BacktestingContextProps {
   useTestChart: boolean;
   toggleChart: () => void;
   selectedChart: string[];
+  currentIndex: number;
+  setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export const BacktestingContext = createContext<
@@ -29,6 +31,7 @@ const BacktestingProvider = ({ children }: { children: React.ReactNode }) => {
   const [backtesting, setBacktesting] = useState<BacktestResult[]>([]);
   const [showBacktesting, setShowBacktesting] = useState(false);
   const [useTestChart, setUseTestChart] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleStartBacktesting = () => {
     setShowBacktesting(true);
@@ -40,6 +43,7 @@ const BacktestingProvider = ({ children }: { children: React.ReactNode }) => {
 
   const toggleChart = () => {
     setUseTestChart((prevState) => !prevState);
+    setCurrentIndex(0);
   };
 
   const selectedChart = useTestChart
@@ -57,6 +61,8 @@ const BacktestingProvider = ({ children }: { children: React.ReactNode }) => {
         useTestChart,
         toggleChart,
         selectedChart,
+        currentIndex,
+        setCurrentIndex,
       }}
     >
       {children}

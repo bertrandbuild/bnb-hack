@@ -5,30 +5,39 @@ import styles from "./Backtesting.module.css";
 import { useBacktestingContext } from "../../hooks/useBacktestingContext";
 
 const Backtesting: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [zoom, setZoom] = useState(false);
-
   // Select table test or prod
-  const { selectedChart, useTestChart, toggleChart } = useBacktestingContext();
+  const {
+    selectedChart,
+    currentIndex,
+    setCurrentIndex,
+    useTestChart,
+    toggleChart,
+  } = useBacktestingContext();
+  const [zoom, setZoom] = useState(false);
 
   const handleNext = () => {
     if (selectedChart && selectedChart.length > 0) {
-      setCurrentIndex((prevIndex) =>
+      setCurrentIndex((prevIndex: number) =>
+        prevIndex === selectedChart.length - 1 ? 0 : prevIndex + 1
+      );
+    }
+  };
+
+  const handlePrevious = () => {
+    if (selectedChart && selectedChart.length > 0) {
+      setCurrentIndex((prevIndex: number) =>
         prevIndex === 0 ? selectedChart.length - 1 : prevIndex - 1
       );
     }
   };
-  
-  const handlePrevious = () => {
-    if (selectedChart && selectedChart.length > 0) {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === selectedChart.length - 1 ? 0 : prevIndex + 1
-    );
-  }
-};
 
   const toggleZoom = () => {
     setZoom(!zoom);
+  };
+
+  const handleToggleChart = () => {
+    setCurrentIndex(0);
+    toggleChart();
   };
 
   // useEffect to manage keyboard-related board effects `shift + right or shift + left`.
@@ -53,7 +62,7 @@ const Backtesting: React.FC = () => {
     <>
       <div className="flex flex-col items-center">
         <div className="tradingview-widget-container carousel">
-          {selectedChart.slice().reverse().map((image, index) => (
+          {selectedChart.slice().map((image, index) => (
             <div
               key={index}
               onClick={toggleZoom}
@@ -116,9 +125,10 @@ const Backtesting: React.FC = () => {
           </svg>
         </button>
       </div>
-      <div className="btn btn-active btn-primary"
-      onClick={toggleChart}>
-          {useTestChart ? 'Switch to backtestingCharts' : 'Switch to backtestingChartTest'}
+      <div className="btn btn-active btn-primary" onClick={handleToggleChart}>
+        {useTestChart
+          ? "Switch to backtestingCharts"
+          : "Switch to backtestingChartTest"}
       </div>
       <div className="text-center m-4 tradingview-widget-copyright">
         <a

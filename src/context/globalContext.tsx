@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import { IPortfolio } from "../components/Portfolio/interface";
+import { IPortfolio } from "../components/portfolio/interface";
 import { IStrategy } from "../components/StrategyControls/interface";
 import { loadAllFromLocalStorage } from "../utils/localStorage";
 
@@ -46,30 +46,45 @@ const defaultContext: IGlobalContextType = {
 export const GlobalContext = createContext<IGlobalContextType>(defaultContext);
 
 // Initialize the context with the default values and load from localStorage
-export const GlobalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const GlobalProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [globalState, setGlobalState] = useState(defaultContext);
 
   const _saveToLocalStorage = (key: string, value: unknown) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(key, JSON.stringify(value));
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (error) {
+        console.error(`Failed to save ${key} to localStorage:`, error);
+      }
     }
   };
 
   // Global function to update the context and save to localStorage
   const updateContext = (key: string, value: unknown) => {
-    setGlobalState(prevState => {
+    // Create a deep copy of the current state to prevent unintentional mutations
+    setGlobalState((prevState) => {
       const newState = { ...prevState, [key]: value };
-      _saveToLocalStorage(key, value);
+
+      // If the value is null or undefined, delete it from the localStorage
+      if (value === null || value === undefined) {
+        localStorage.removeItem(key);
+      } else {
+        _saveToLocalStorage(key, value);
+      }
+
       return newState;
     });
   };
 
   // Initialize the context with the default values and load from localStorage
   useEffect(() => {
+    const loadedState = loadAllFromLocalStorage(initialLocalStorageConfig);
     // Init state by loading from localStorage
-    setGlobalState(prevState => ({
+    setGlobalState((prevState) => ({
       ...prevState,
-      ...loadAllFromLocalStorage(initialLocalStorageConfig)
+      ...loadedState,
     }));
   }, []);
 

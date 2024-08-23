@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { TransactionReceipt, Contract, ethers } from "ethers";
-import { chatGptVisionABI } from "../../abis/chatgptvision";
-import { ChatMessage } from "./interface";
-import { IS_DEV } from "../../config/env";
+import { chatGptVisionABI } from "../../../abis/chatgptvision";
+import { ChatMessage } from "../interface";
+import {
+  VITE_WALLET_PK,
+  VITE_OPEN_AI_VISION_CONTRACT_ADDRESS,
+  IS_DEV,
+} from "../../../config/env";
 
 const useChat = () => {
   const [requestHash, setRequestHash] = useState<string | null>(null);
@@ -31,12 +35,12 @@ const useChat = () => {
         "https://devnet.galadriel.com"
       );
       const wallet = new ethers.Wallet(
-        import.meta.env.VITE_WALLET_PK,
+        VITE_WALLET_PK,
         provider
       );
       const signer = wallet;
       const contract = new Contract(
-        import.meta.env.VITE_OPEN_AI_VISION_CONTRACT_ADDRESS || "",
+        VITE_OPEN_AI_VISION_CONTRACT_ADDRESS  || "",
         chatGptVisionABI,
         signer
       );

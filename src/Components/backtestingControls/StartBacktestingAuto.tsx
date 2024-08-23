@@ -61,11 +61,11 @@ const StartBacktestingAuto: React.FC = () => {
       {/* Display of current cursor value */}
       <div className="mt-4 text-center text-lg">
         <p className="text-neutral">
-          Number of days Backtesting :{" "}
+          Number of backtesting days :{" "}
           <span className="font-bold text-blue-500">{value}</span>
         </p>
         <p className="text-neutral">
-          Backtesting time :{" "}
+          Estimated backtesting time :{" "}
           <span className="font-bold text-blue-500">{backtestingTime}</span>
         </p>
       </div>

@@ -17,7 +17,6 @@ const TradeHistory: React.FC = () => {
               <th className="text-neutral">Nb</th>
               <th className="text-neutral">Pair</th>
               <th className="text-neutral">Action</th>
-              <th className="text-neutral">Amount</th>
               <th className="text-neutral">Reason</th>
             </tr>{" "}
           </thead>

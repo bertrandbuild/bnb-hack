@@ -49,7 +49,7 @@ const exampleStrategy = `**YOU ARE AN ASSET MANAGER**
 
 const nonEditablePrompt = `### CURRENT STATUS
 - **Action Options**: \`Buy\` | \`Sell\` | \`Hold\`
-- **Current Portfolio**: \${currentQuoteSize} USDC | \${totalBtc} BTC
+- **Current Portfolio**: \${totalUSD} USD | \${totalBtc} BTC
 - **Trade Status**: \${tradeStatus}
 
 ### RESPONSE FORMAT  
