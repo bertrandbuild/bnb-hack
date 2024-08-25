@@ -72,18 +72,13 @@ const useStrategy = () => {
   // Run the strategy in production mode
   // TODO: add the swap when not in backtesting mode
   const runStrategyProd = async (ipfsHash: string, prompt: string): Promise<void> => {
-    // if (!lockTrade()) return; // Lock the trade operation
+    // if (!lockTrade()) return; // FIXME: Lock the trade operation
 
     try {
       const llmResponse = await getLlmResponse(ipfsHash, prompt); // Use getLlmResponse
       setLlmResult(llmResponse); // Set the result back to the state
       const tradeIntent = handleIntent(llmResponse?.content);
       if (tradeIntent === null || tradeIntent.action === "HOLD") return;
-
-      // if (portfolio.tradeInProgress) {
-      //   console.warn("Trade already in progress, skipping new trade.");
-      //   return;
-      // }
 
       const newPortfolio = await addTrade(tradeIntent);
       if (newPortfolio === null) return;
