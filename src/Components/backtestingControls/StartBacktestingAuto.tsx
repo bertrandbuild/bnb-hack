@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-// import components
 import AnalysisLauncher from "./AnalysisLauncher";
 
 const StartBacktestingAuto: React.FC = () => {

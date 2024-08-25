@@ -2,7 +2,6 @@
 
 import { HiUser } from "react-icons/hi";
 import { ChatMessage } from "./interface";
-// import { useGlobalContext } from "../../context/globalContext";
 import Markdown from "react-markdown";
 import styles from "./Message.module.css"
 
@@ -49,7 +48,6 @@ const MessageUser = (props: ChatMessage) => {
 
 const ManagerMessage = (props: ChatMessage) => {
   const { content } = props;
-  // const { selectedManager } = useGlobalContext();
   return (
     <>
       <div className="avatar">

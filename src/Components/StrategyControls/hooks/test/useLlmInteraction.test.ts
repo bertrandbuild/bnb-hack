@@ -73,7 +73,7 @@ describe("useLlmInteraction", () => {
     await act(async () => {
       await expect(
         result.current.getLlmResponse("mock-ipfs-hash", "mock-prompt")
-      ).rejects.toThrow("LLM error"); // Correction pour matcher l'erreur réelle
+      ).rejects.toThrow("LLM error");
     });
 
     expect(startChatWithImageMock).toHaveBeenCalledWith(

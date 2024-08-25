@@ -61,7 +61,7 @@ const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
           isAnalyzing ? "btn-secondary" : "btn-primary"
         } rounded mx-auto mb-2`}
       >
-        {isAnalyzing ? "Resume analysis" : "Start backtesting"}
+        {isAnalyzing ? "Pause backtesting" : "Start backtesting"}
       </button>
       {isAnalyzing && (
         <p className="text-sm mt-2 text-primary">

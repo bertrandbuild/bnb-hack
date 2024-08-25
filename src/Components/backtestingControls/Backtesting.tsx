@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Backtesting.module.css";
 
-// import context
 import { useBacktestingContext } from "../../hooks/useBacktestingContext";
 
 const Backtesting: React.FC = () => {
