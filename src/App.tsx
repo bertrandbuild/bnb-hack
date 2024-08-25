@@ -1,26 +1,20 @@
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Outlet } from "react-router-dom";
+import "./App.css";
+
+// import components
+import NavBar from "./components/ui/NavBar";
+import Footer from "./components/ui/Footer";
 
 function App() {
-
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <h1 className="text-3xl font-bold underline">
-        Hello world!
-      </h1>
-      <button className="btn">Button</button>
-    </>
-  )
+    <div className="bg-base-100 min-h-screen flex flex-col">
+      <NavBar />
+      <main className="flex-1 container mx-auto px-4 py-0">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
 }
 
-export default App
+export default App;
