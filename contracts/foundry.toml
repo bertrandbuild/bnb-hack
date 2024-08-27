@@ -1,0 +1,9 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+
+# Enable the Yul intermediate representation (IR) pipeline
+via_ir = true
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

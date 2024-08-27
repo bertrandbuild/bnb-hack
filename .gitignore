@@ -73,3 +73,6 @@ __pycache__/
 
 # Vercel
 .vercel
+
+# Forge submodules
+contracts/lib/*
