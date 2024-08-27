@@ -85,8 +85,10 @@ const CustomStrategyModal: React.FC<CustomStrategyModalProps> = ({ isOpen, onClo
     }
     const newName = `${uuidV4()}.json`;
     const newFile = new File([JSON.stringify(strategy)], newName, { type: "application/json" });
+    const bucketName = `${BUCKET_NAME}-${address?.toLocaleLowerCase()}`;
+
     try {
-      await uploadToGreenfield(String(address), connector, { bucketName: BUCKET_NAME, objectName: newName, file: newFile });
+      await uploadToGreenfield(String(address), connector, { bucketName, objectName: newName, file: newFile });
       toast.success("Strategy uploaded successfully");
       onClose(strategy);
     } catch (error) {

@@ -16,8 +16,6 @@ import { BUCKET_NAME } from "../config/env";
 import defaultStrategy from '../utils/ma-cross-strategy.json';
 import { useSwitchToGreenfield } from "../hooks/useSwitchToGreenfield";
 
-const bucketName = BUCKET_NAME;
-
 const OnboardingStrategy: React.FC = () => {
   const { updateContext } = useGlobalContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,6 +47,7 @@ const OnboardingStrategy: React.FC = () => {
 
   const loadUserStrategiesFromGreenfield = async () => {
     if (!address || !connector) return;
+    const bucketName = `${BUCKET_NAME}-${address?.toLocaleLowerCase()}`;
 
     setIsLoading(true);
 
