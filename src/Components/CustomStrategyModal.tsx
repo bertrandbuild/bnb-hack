@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import Markdown from "react-markdown";
-import { useAccount, useSwitchChain } from "wagmi";
-import { BUCKET_NAME, GREEN_CHAIN_ID } from "../config/env";
+import { useAccount } from "wagmi";
+import { BUCKET_NAME } from "../config/env";
 import { uploadToGreenfield } from "../services/bnbGreenfieldService";
 import { IStrategy } from "./StrategyControls/interface";
 import { v4 as uuidV4 } from "uuid";
 import toast from "react-hot-toast";
 import Loading from "./ui/Loading";
+import { useSwitchToGreenfield } from "../hooks/useSwitchToGreenfield";
 
 interface CustomStrategyModalProps {
   isOpen: boolean;
@@ -64,17 +65,11 @@ const CustomStrategyModal: React.FC<CustomStrategyModalProps> = ({ isOpen, onClo
   const [prompt, setPrompt] = useState(exampleStrategy);
   const [imgUrl, setImgUrl] = useState("");
   const [title, setTitle] = useState("");
-  const { chain, address, connector, isConnected } = useAccount();
-  const { switchChain } = useSwitchChain();
-  const isOnGreenfield = chain?.id === GREEN_CHAIN_ID;
+  const { address, connector, isConnected } = useAccount();
   const [isLoading, setIsLoading] = useState(false);
-  
-  const switchToGreenfieldNetwork = () => {
-    if (!isOnGreenfield && switchChain) {
-      switchChain({ chainId: GREEN_CHAIN_ID });
-    }
-  }
 
+  const { isOnGreenfield, switchToGreenfieldNetwork } = useSwitchToGreenfield();
+  
   const uploadStrategy = async () => {
     setIsLoading(true);
     const strategy: IStrategy = {
@@ -90,8 +85,10 @@ const CustomStrategyModal: React.FC<CustomStrategyModalProps> = ({ isOpen, onClo
     }
     const newName = `${uuidV4()}.json`;
     const newFile = new File([JSON.stringify(strategy)], newName, { type: "application/json" });
+    const bucketName = `${BUCKET_NAME}-${address?.toLocaleLowerCase()}`;
+
     try {
-      await uploadToGreenfield(String(address), connector, { bucketName: BUCKET_NAME, objectName: newName, file: newFile });
+      await uploadToGreenfield(String(address), connector, { bucketName, objectName: newName, file: newFile });
       toast.success("Strategy uploaded successfully");
       onClose(strategy);
     } catch (error) {

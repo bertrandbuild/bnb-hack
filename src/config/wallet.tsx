@@ -2,9 +2,10 @@ import { createWeb3Modal } from '@web3modal/wagmi/react'
 import { defaultWagmiConfig } from '@web3modal/wagmi/react/config'
 
 import { WagmiProvider } from 'wagmi'
-import { bscTestnet, Chain, mainnet } from 'wagmi/chains'
+import { bscTestnet } from 'wagmi/chains'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { WALLET_CONNECT_PROJECT_ID, GREENFIELD_RPC_URL, GREEN_CHAIN_ID } from './env'
+import { WALLET_CONNECT_PROJECT_ID } from './env'
+import { greenFieldChain } from './chains'
 
 const queryClient = new QueryClient()
 
@@ -17,25 +18,7 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
-const greenFieldChain = {
-  id: GREEN_CHAIN_ID,
-  rpcUrls: {
-    default: {
-      http: [GREENFIELD_RPC_URL],
-    },
-    public: {
-      http: [GREENFIELD_RPC_URL],
-    },
-  },
-  name: 'greenfield',
-  nativeCurrency: {
-    name: 'BNB',
-    symbol: 'BNB',
-    decimals: 18,
-  },
-} as const satisfies Chain;
-
-const chains = [mainnet, bscTestnet, greenFieldChain] as const
+const chains = [bscTestnet, greenFieldChain] as const
 const config = defaultWagmiConfig({
   chains,
   projectId,
