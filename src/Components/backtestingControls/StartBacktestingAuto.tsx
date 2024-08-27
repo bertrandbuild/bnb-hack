@@ -1,12 +1,18 @@
 import React, { useState } from "react";
 
 import AnalysisLauncher from "./AnalysisLauncher";
+import { useBacktestingContext } from "../../hooks/useBacktestingContext";
 
 const StartBacktestingAuto: React.FC = () => {
+  const { selectedChart } = useBacktestingContext();
   const [value, setValue] = useState(12);
 
   // Define a conversion factor (for example, each unit of value = 2 minutes)
   const conversionFactor = 1;
+
+  const numberImagesCharts = () => {
+    return selectedChart.length;
+  } 
 
   // Calculate backtesting time in minutes or hours
   const calculateBacktestingTime = (value: number) => {
@@ -32,7 +38,7 @@ const StartBacktestingAuto: React.FC = () => {
         <input
           type="range"
           min={0}
-          max="1319"
+          max={numberImagesCharts()}
           value={value}
           step="1"
           className="range range-xs"
