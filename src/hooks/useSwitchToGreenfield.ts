@@ -5,17 +5,17 @@ import toast from "react-hot-toast";
 
 export const useSwitchToGreenfield = () => {
   const { chain } = useAccount();
-  const { switchChain } = useSwitchChain();
+  const { switchChain, error: switchError } = useSwitchChain();
   const { data: walletClient } = useWalletClient();
 
   const isOnGreenfield = chain?.id === GREEN_CHAIN_ID;
 
   const switchToGreenfieldNetwork = async () => {
     if (!isOnGreenfield && switchChain) {
-      try {
-        await switchChain({ chainId: GREEN_CHAIN_ID });
-      } catch (error) {
-        if (isChainNotAddedError(error)) {
+      switchChain({ chainId: GREEN_CHAIN_ID });
+      
+      if (switchError) {
+        if (isChainNotAddedError(switchError)) {
           if (!walletClient) {
             console.error("Cannot change chain because wallet client is not available");
             return;
@@ -33,7 +33,7 @@ export const useSwitchToGreenfield = () => {
                 },
               ],
             });
-            await switchChain({ chainId: GREEN_CHAIN_ID });
+            switchChain({ chainId: GREEN_CHAIN_ID });
           } catch (addError) {
             console.error('Error adding the Greenfield network:', addError);
             toast.error('Failed to add the Greenfield network. Please add it manually.');
@@ -48,6 +48,10 @@ export const useSwitchToGreenfield = () => {
   return { isOnGreenfield, switchToGreenfieldNetwork };
 };
 
-function isChainNotAddedError(error: unknown): error is { code: number } {
-  return error instanceof Error && 'code' in error && error.code === 4902;
+interface ChainError extends Error {
+  code?: number;
+}
+
+function isChainNotAddedError(error: ChainError): boolean {
+  return 'code' in error && error.code === 4902;
 }
