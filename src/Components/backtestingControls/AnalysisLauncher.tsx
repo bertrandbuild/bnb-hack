@@ -15,7 +15,7 @@ interface AnalysisLauncherProps {
 const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
   analysisCount,
 }) => {
-  const { selectedChart, setCurrentIndex } = useBacktestingContext();
+  const { selectedChart, setCurrentIndex, useTestChart, toggleChart } = useBacktestingContext();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedData, setSelectedData] = useState<string[]>([]);
   const { runStrategy, isLoading, requestHash, llmResult } = useStrategy();
@@ -53,6 +53,11 @@ const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
     }
   }, [isAnalyzing, currentAnalysisIndex, selectedData, setCurrentIndex]);
 
+  const handleToggleChart = () => {
+    setCurrentIndex(0);
+    toggleChart();
+  };
+
   return (
     <div className="flex justify-center items-center flex-col mt-4">
       <button
@@ -63,6 +68,11 @@ const AnalysisLauncher: React.FC<AnalysisLauncherProps> = ({
       >
         {isAnalyzing ? "Pause backtesting" : "Start backtesting"}
       </button>
+      <div className="btn btn-sm" onClick={handleToggleChart}>
+        {useTestChart
+          ? "Switch to backtestingCharts"
+          : "Switch to fake charts with multiple buy / sell signals"}
+      </div>
       {isAnalyzing && (
         <p className="text-sm mt-2 text-primary">
           Analyzing: {currentAnalysisIndex + 1} / {analysisCount}

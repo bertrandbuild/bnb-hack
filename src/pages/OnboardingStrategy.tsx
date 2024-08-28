@@ -8,30 +8,23 @@ import CustomStrategyModal from "../components/CustomStrategyModal"; // Import t
 import { useGlobalContext } from "../hooks/useGlobalContext";
 // other imports
 import { useNavigate } from "react-router-dom";
-import { useAccount, useSwitchChain } from "wagmi";
+import { useAccount } from "wagmi";
 import { listAllObjectsFromBucket } from "../services/bnbGreenfieldService";
 import toast from "react-hot-toast";
 import Loading from "../components/ui/Loading";
-import { BUCKET_NAME, GREEN_CHAIN_ID } from "../config/env";
+import { BUCKET_NAME } from "../config/env";
 import defaultStrategy from '../utils/ma-cross-strategy.json';
-
-const bucketName = BUCKET_NAME;
+import { useSwitchToGreenfield } from "../hooks/useSwitchToGreenfield";
 
 const OnboardingStrategy: React.FC = () => {
   const { updateContext } = useGlobalContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
-  const {address, connector, chain, isConnected} = useAccount();
+  const {address, connector, isConnected} = useAccount();
   const [isLoading, setIsLoading] = useState(false);
   const [strategies, setStrategies] = useState<IStrategy[]>([defaultStrategy]);
-  const { switchChain } = useSwitchChain();
-  const isOnGreenfield = chain?.id === GREEN_CHAIN_ID;
-  
-  const switchToGreenfieldNetwork = () => {
-    if (!isOnGreenfield && switchChain) {
-      switchChain({ chainId: GREEN_CHAIN_ID });
-    }
-  }
+  const { isOnGreenfield, switchToGreenfieldNetwork } = useSwitchToGreenfield();
+
 
   // Add strategy to context and navigate to next page
   const handleChooseStrategy = (e: React.MouseEvent<HTMLButtonElement>, strategy: IStrategy) => {
@@ -54,6 +47,7 @@ const OnboardingStrategy: React.FC = () => {
 
   const loadUserStrategiesFromGreenfield = async () => {
     if (!address || !connector) return;
+    const bucketName = `${BUCKET_NAME}-${address?.toLocaleLowerCase()}`;
 
     setIsLoading(true);
 

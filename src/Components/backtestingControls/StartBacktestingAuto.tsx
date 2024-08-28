@@ -1,9 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import AnalysisLauncher from "./AnalysisLauncher";
+import { useBacktestingContext } from "../../hooks/useBacktestingContext";
 
 const StartBacktestingAuto: React.FC = () => {
-  const [value, setValue] = useState(12);
+  const { selectedChart } = useBacktestingContext();
+  const [value, setValue] = useState(1);
+
+  useEffect(() => {
+    setValue(1);
+  }, [selectedChart]);
 
   // Define a conversion factor (for example, each unit of value = 2 minutes)
   const conversionFactor = 1;
@@ -32,7 +38,7 @@ const StartBacktestingAuto: React.FC = () => {
         <input
           type="range"
           min={0}
-          max="1319"
+          max={selectedChart.length}
           value={value}
           step="1"
           className="range range-xs"
